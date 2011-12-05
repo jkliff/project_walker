@@ -89,11 +89,12 @@ class ProjectCheckEvaluator (TreeWalker):
     def walk (self, checker):
         self.context ['idx'] = 0
         result = TreeWalker.walk (self, checker)
+
         return result
 
     def walkNode (self, node, checker):
-
         self.context ['idx'] = self.context ['idx'] + 1
+
         checker.current_context = self.context
         TreeWalker.walkNode (self, node, checker)
         checker.current_context = None
