@@ -30,8 +30,7 @@ class BasicTest (unittest.TestCase):
     def test_walk_all_nodes (self):
 
         visitor = InfoGathererVisitor ()
-        tree_builder = ProjectStructureTreeBuilder ()
-        tree = tree_builder.build ('sandbox/sample')
+        tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
         visitor_output = walker.walk (visitor)
@@ -42,8 +41,7 @@ class BasicTest (unittest.TestCase):
         visitor = InfoGathererVisitor ()
         visitor.setAcceptRules (lambda node: node.file_attrs ['type'] == 'd')
 
-        tree_builder = ProjectStructureTreeBuilder ()
-        tree = tree_builder.build ('sandbox/sample')
+        tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
         visitor_output = walker.walk (visitor)
@@ -55,18 +53,33 @@ class BasicTest (unittest.TestCase):
         visitor.setAcceptRules (lambda node: node.file_attrs ['type'] != 'd')
         visitor.setDenyRules (lambda node: node.data.endswith ('.java'))
 
-        tree_builder = ProjectStructureTreeBuilder ()
-        tree = tree_builder.build ('sandbox/sample')
+        tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
         visitor_output = walker.walk (visitor)
         print 'Only non-java files'
         print visitor_output
 
+    def test_evaluate_checker (self):
+        check = FileNameContainsNumberCheck ()
+        tree = self.__tree ()
+        checker = ProjectWalker.ProjectCheckEvaluator (tree)
 
+        check_status = checker.walk (check)
+        print check_status
+
+    def test_evaluate_parameterized_checker (self):
+        #checker = FileContentContainsCharacter ('x')
+        pass
 
     def test_evaluate_check (self):
         pass
+
+    def __tree (self):
+        tree_builder = ProjectStructureTreeBuilder ()
+        return tree_builder.build ('sandbox/sample')
+
+
 
 class InfoGathererVisitor (ProjectWalker.Visitor):
     def __init__ (self):
@@ -134,7 +147,28 @@ class ProjectStructureTreeBuilder (ProjectWalker.TreeBuilder):
             t = 'd'
         elif os.path.isfile (full_path):
             t = 'f'
-
         return t
+
+
+class Checker (ProjectWalker.Visitor):
+    def __init__ (self, name):
+        ProjectWalker.Visitor.__init__ (self)
+        self.name = name
+        self.check_result = []
+        # read-only!
+        self.current_context = None
+
+    def addResult (self, result):
+        self.check_result.append ((self.current_context, result))
+
+import re
+
+class FileNameContainsNumberCheck (Checker):
+    def __init__ (self):
+        Checker.__init__ (self, 'FileNameContainsNumberCheck')
+
+    def visit (self, node):
+        self.addResult (re.match ('[0-9]', node.file_attrs ['name']))
+
 if __name__ == '__main__':
     unittest.main ()

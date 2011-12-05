@@ -12,7 +12,13 @@ class Visitor:
                 return False
         return True
 
+    def pre_visit (self, n):
+        pass
+
     def visit (self, n):
+        pass
+
+    def post_visit (self, n):
         pass
 
     def getOutput (self):
@@ -57,13 +63,15 @@ class TreeWalker:
         self.root = tree.root
 
     def walk (self, visitor):
-        self.__walkNode (self.root, visitor)
+        self.walkNode (self.root, visitor)
 
         return visitor.getOutput ()
 
-    def __walkNode (self, node, visitor):
+    def walkNode (self, node, visitor):
         if visitor.appliesTo (node):
+            visitor.pre_visit (node)
             visitor.visit (node)
+            visitor.post_visit (node)
 
         l = node.children
 
@@ -71,4 +79,22 @@ class TreeWalker:
             return
 
         for c in l:
-            self.__walkNode (c, visitor)
+            self.walkNode (c, visitor)
+
+class ProjectCheckEvaluator (TreeWalker):
+    def __init__ (self, tree):
+        TreeWalker.__init__ (self, tree)
+        self.context = {}
+
+    def walk (self, checker):
+        self.context ['idx'] = 0
+        result = TreeWalker.walk (self, checker)
+        return result
+
+    def walkNode (self, node, checker):
+
+        self.context ['idx'] = self.context ['idx'] + 1
+        checker.current_context = self.context
+        TreeWalker.walkNode (self, node, checker)
+        checker.current_context = None
+
