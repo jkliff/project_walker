@@ -24,6 +24,16 @@ class Visitor:
     def getOutput (self):
         return None
 
+    def setAcceptRules (self, rules):
+        if type (list) != type (rules):
+            rules = [rules]
+        self.accept_rules.extend (rules)
+
+    def setDenyRules (self, rules):
+        if type (list) != type (rules):
+            rules = [rules]
+        self.deny_rules.extend (rules)
+
 class Node:
     def __init__ (self, data):
         self.children = []

@@ -28,7 +28,6 @@ class BasicTest (unittest.TestCase):
         print tree
 
     def test_walk_all_nodes (self):
-
         visitor = InfoGathererVisitor ()
         tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
@@ -68,8 +67,20 @@ class BasicTest (unittest.TestCase):
         check_status = checker.walk (check)
         print check_status
 
+    def test_evaluate_predicated_checker (self):
+        check = JavaFileNameContainsNumberCheck ()
+        tree = self.__tree ()
+        checker = ProjectWalker.ProjectCheckEvaluator (tree)
+
+        check_status = checker.walk (check)
+        print check_status
+
     def test_evaluate_parameterized_checker (self):
         #checker = FileContentContainsCharacter ('x')
+        pass
+
+    def test_conditional_check_evaluation (self):
+        """here we set a check [cost directive is 100 in sql sproc?] to be evaluated only if PREDICATE [sql file contains sproc definition] is True"""
         pass
 
     def __tree (self):
@@ -89,16 +100,6 @@ class InfoGathererVisitor (ProjectWalker.Visitor):
 
     def getOutput (self):
         return '\n'.join (self.visited_nodes)
-
-    def setAcceptRules (self, rules):
-        if type (list) != type (rules):
-            rules = [rules]
-        self.accept_rules.extend (rules)
-
-    def setDenyRules (self, rules):
-        if type (list) != type (rules):
-            rules = [rules]
-        self.deny_rules.extend (rules)
 
 class ProjectNode (ProjectWalker.Node):
     def __init__ (self, root_path):
@@ -160,6 +161,10 @@ class Checker (ProjectWalker.Visitor):
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))
 
+    def getReport (self):
+        """Gives the possibility to include report-generation facilities (just call this instead of getOutput, which generally is rather raw, so to say."""
+        return "It was a pleasure evaluating such a nice project with %s failures for %s evaluated nodes" % (0, len (self_.check_result))
+
     def getOutput (self):
         return self.check_result
 
@@ -173,6 +178,18 @@ class FileNameContainsNumberCheck (Checker):
         r = re.search ('\d', node.file_attrs ['file_name'])
         if r is not None:
             self.addResult (r is not None)
+
+import fnmatch
+# could even inhert from FileNameContainsNumberCheck, but like this is funnier
+class JavaFileExistsNTimesCheck (Checker):
+    def __init__ (self):
+        Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
+        self.setAcceptRules ([lambda f: fnmatch.fnmatch('*.java', f.file_attrs ['file_name'])])
+        self.occurrency_log = []
+
+    def visit (self, node):
+        if fnmatch.fnmatch ('*.java', f.file_attrs ['file_name']):
+            self.occurrency_log.append (f.file_attrs ['file_name'])
 
 if __name__ == '__main__':
     unittest.main ()
