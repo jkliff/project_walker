@@ -72,9 +72,6 @@ class BasicTest (unittest.TestCase):
         #checker = FileContentContainsCharacter ('x')
         pass
 
-    def test_evaluate_check (self):
-        pass
-
     def __tree (self):
         tree_builder = ProjectStructureTreeBuilder ()
         return tree_builder.build ('sandbox/sample')
@@ -115,7 +112,8 @@ class ProjectStructureTreeBuilder (ProjectWalker.TreeBuilder):
     def build (self, root_path):
         node = ProjectNode (root_path)
         node.file_attrs = {
-            'name': root_path,
+            'file_name': root_path,
+            'path': None,
             'full_path': node.data,
             'type': self.ResolveFileType (node.data)
         }
@@ -133,7 +131,8 @@ class ProjectStructureTreeBuilder (ProjectWalker.TreeBuilder):
         for p in paths:
             n = ProjectNode (os.path.join (r, p))
             n.file_attrs = {
-                'name': r,
+                'file_name': p,
+                'path': r,
                 'full_path': n.data,
                 'type': self.ResolveFileType(n.data)
             }
@@ -161,6 +160,9 @@ class Checker (ProjectWalker.Visitor):
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))
 
+    def getOutput (self):
+        return self.check_result
+
 import re
 
 class FileNameContainsNumberCheck (Checker):
@@ -168,7 +170,9 @@ class FileNameContainsNumberCheck (Checker):
         Checker.__init__ (self, 'FileNameContainsNumberCheck')
 
     def visit (self, node):
-        self.addResult (re.match ('[0-9]', node.file_attrs ['name']))
+        r = re.search ('\d', node.file_attrs ['file_name'])
+        if r is not None:
+            self.addResult (r is not None)
 
 if __name__ == '__main__':
     unittest.main ()
