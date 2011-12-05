@@ -2,9 +2,17 @@ Todo for project project-walker-core:
 
 Bugs:
 
+
+Unsure:
+- currently the reporting facility occurs only at the end. maybe it is interesting to report errors immediatelly
+
 Core features:
 
-Nice to have: 
+- possibility to run as configured a series of check rules
+
+Nice to have:
+
+- definition of predicates, to
+- enable the execution of checks conditionally
 
 Other:
-
