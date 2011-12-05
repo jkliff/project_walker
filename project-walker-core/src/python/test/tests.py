@@ -34,30 +34,33 @@ class BasicTest (unittest.TestCase):
 
         visitor_output = walker.walk (visitor)
         print 'All nodes:'
-        print visitor_output
+        print visitor_output.getOutput ()
+        print visitor_output.getReport ()
 
     def test_apply_predicate_dirs (self):
         visitor = InfoGathererVisitor ()
-        visitor.setAcceptRules (lambda node: node.file_attrs ['type'] == 'd')
+        visitor.addAcceptRule (lambda node: node.file_attrs ['type'] == 'd')
 
         tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
         visitor_output = walker.walk (visitor)
         print 'Only directories'
-        print visitor_output
+        print visitor_output.getOutput ()
+        print visitor_output.getReport ()
 
     def test_apply_predicate_java_files (self):
         visitor = InfoGathererVisitor ()
-        visitor.setAcceptRules (lambda node: node.file_attrs ['type'] != 'd')
-        visitor.setDenyRules (lambda node: node.data.endswith ('.java'))
+        visitor.addAcceptRule (lambda node: node.file_attrs ['type'] != 'd')
+        visitor.addDenyRule (lambda node: node.data.endswith ('.java'))
 
         tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
         visitor_output = walker.walk (visitor)
         print 'Only non-java files'
-        print visitor_output
+        print visitor_output.getOutput ()
+        print visitor_output.getReport ()
 
     def test_evaluate_checker (self):
         check = FileNameContainsNumberCheck ()
@@ -68,12 +71,12 @@ class BasicTest (unittest.TestCase):
         print check_status
 
     def test_evaluate_predicated_checker (self):
-        check = JavaFileNameContainsNumberCheck ()
+        check = JavaFileExistsNTimesCheck ()
         tree = self.__tree ()
         checker = ProjectWalker.ProjectCheckEvaluator (tree)
 
         check_status = checker.walk (check)
-        print check_status
+        print check_status.getReport ()
 
     def test_evaluate_parameterized_checker (self):
         #checker = FileContentContainsCharacter ('x')
@@ -163,7 +166,7 @@ class Checker (ProjectWalker.Visitor):
 
     def getReport (self):
         """Gives the possibility to include report-generation facilities (just call this instead of getOutput, which generally is rather raw, so to say."""
-        return "It was a pleasure evaluating such a nice project with %s failures for %s evaluated nodes" % (0, len (self_.check_result))
+        return "It was a pleasure evaluating such a nice project with %s failures for %s evaluated nodes" % (0, len (self.check_result))
 
     def getOutput (self):
         return self.check_result
@@ -182,14 +185,16 @@ class FileNameContainsNumberCheck (Checker):
 import fnmatch
 # could even inhert from FileNameContainsNumberCheck, but like this is funnier
 class JavaFileExistsNTimesCheck (Checker):
+    """violation currently fixed for 2 times"""
     def __init__ (self):
         Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
-        self.setAcceptRules ([lambda f: fnmatch.fnmatch('*.java', f.file_attrs ['file_name'])])
+        self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], '*.java'))
         self.occurrency_log = []
 
     def visit (self, node):
-        if fnmatch.fnmatch ('*.java', f.file_attrs ['file_name']):
-            self.occurrency_log.append (f.file_attrs ['file_name'])
+        """yep, this is redundant. just for fun"""
+        if fnmatch.fnmatch (node.file_attrs ['file_name'], '*.java'):
+            self.occurrency_log.append (node.file_attrs ['file_name'])
 
 if __name__ == '__main__':
     unittest.main ()

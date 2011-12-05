@@ -7,6 +7,7 @@ class Visitor:
         for predicate in self.accept_rules:
             if not predicate (n):
                 return False
+
         for predicate in self.deny_rules:
             if predicate (n):
                 return False
@@ -23,13 +24,15 @@ class Visitor:
 
     def getOutput (self):
         return None
+    def getReport (self):
+        return None
 
-    def setAcceptRules (self, rules):
+    def addAcceptRule (self, rules):
         if type (list) != type (rules):
             rules = [rules]
         self.accept_rules.extend (rules)
 
-    def setDenyRules (self, rules):
+    def addDenyRule (self, rules):
         if type (list) != type (rules):
             rules = [rules]
         self.deny_rules.extend (rules)
@@ -75,7 +78,7 @@ class TreeWalker:
     def walk (self, visitor):
         self.walkNode (self.root, visitor)
 
-        return visitor.getOutput ()
+        return visitor
 
     def walkNode (self, node, visitor):
         if visitor.appliesTo (node):
