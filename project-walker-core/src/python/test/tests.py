@@ -189,12 +189,11 @@ class JavaFileExistsNTimesCheck (Checker):
     def __init__ (self):
         Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
         self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], '*.java'))
-        self.occurrency_log = []
 
     def visit (self, node):
         """yep, this is redundant. just for fun"""
         if fnmatch.fnmatch (node.file_attrs ['file_name'], '*.java'):
-            self.occurrency_log.append (node.file_attrs ['file_name'])
+            self.check_result.append (node.file_attrs ['file_name'])
 
 if __name__ == '__main__':
     unittest.main ()
