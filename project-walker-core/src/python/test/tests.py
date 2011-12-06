@@ -74,7 +74,7 @@ class BasicTest (unittest.TestCase):
         checker = ProjectWalker.ProjectCheckEvaluator (tree)
 
         check_status = checker.walk (check)
-        print check_status
+        print check_status.getReport ()
 
     def test_evaluate_predicated_checker (self):
         check = JavaFileExistsNTimesCheck ()
