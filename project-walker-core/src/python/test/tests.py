@@ -104,7 +104,9 @@ class InfoGathererVisitor (ProjectWalker.Visitor):
     def getOutput (self):
         return '\n'.join (self.visited_nodes)
 
-
+"""The following checks are only for tests.
+If we were to write useful concrete checks they should go into some sort of 'library structure' from where they could be loaded. 
+"""
 import re
 
 class FileNameContainsNumberCheck (ProjectWalker.Checker):
@@ -129,6 +131,6 @@ class JavaFileExistsNTimesCheck (ProjectWalker.Checker):
         if fnmatch.fnmatch (node.file_attrs ['file_name'], '*.java'):
             self.check_result.append (node.file_attrs ['file_name'])
 
-
+# lets rumble
 if __name__ == '__main__':
     unittest.main ()
