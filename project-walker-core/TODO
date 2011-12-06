@@ -7,12 +7,13 @@ Unsure:
 - currently the reporting facility occurs only at the end. maybe it is interesting to report errors immediatelly
 
 Core features:
-
+- output messages to log according to evaluation of the execution 
 - possibility to run as configured a series of check rules
 
 Nice to have:
 
 - definition of predicates, to
 - enable the execution of checks conditionally
+- If we were to write useful concrete checks they should go into some sort of 'library structure' from where they could be loaded. 
 
 Other:
