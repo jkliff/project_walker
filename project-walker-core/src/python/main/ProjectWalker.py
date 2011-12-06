@@ -1,15 +1,37 @@
 import os
 import logging
 
-"""some finger-candy"""
+"""some eye/finger-candy"""
+_t = lambda m: logging.debug (m)
+_d = lambda m: logging.debug (m)
+_i = lambda m: logging.info (m)
+_w = lambda m: logging.warn (m)
+_e = lambda m: logging.error (m)
 
+"""decorators"""
 
+def report_debug (f):
+    def w (*args, **kws):
+        _d ('Entering %s' % f)
+        r = f(*args, **kws)
+        _d ('Exiting %s' % f)
+        return r
+    return w
+
+def report_info (f):
+    def w (*args, **kws):
+        _i ('Entering %s' % f)
+        r = f(*args, **kws)
+        _i ('Exiting %s:' % f)
+        return r
+    return w
 
 class Visitor:
     def __init__ (self):
         self.accept_rules = []
         self.deny_rules = []
 
+    @report_debug
     def appliesTo (self, n):
         for predicate in self.accept_rules:
             if not predicate (n):
@@ -20,12 +42,15 @@ class Visitor:
                 return False
         return True
 
+    @report_debug
     def pre_visit (self, n):
         pass
 
+    @report_debug
     def visit (self, n):
         pass
 
+    @report_debug
     def post_visit (self, n):
         pass
 
@@ -87,6 +112,7 @@ class TreeWalker:
 
         return visitor
 
+    @report_debug
     def walkNode (self, node, visitor):
         if visitor.appliesTo (node):
             visitor.pre_visit (node)
@@ -106,12 +132,14 @@ class ProjectCheckEvaluator (TreeWalker):
         TreeWalker.__init__ (self, tree)
         self.context = {}
 
+    @report_debug
     def walk (self, checker):
         self.context ['idx'] = 0
         result = TreeWalker.walk (self, checker)
 
         return result
 
+    @report_debug
     def walkNode (self, node, checker):
         self.context ['idx'] = self.context ['idx'] + 1
 
@@ -176,6 +204,15 @@ class Checker (Visitor):
         self.check_result = []
         # read-only!
         self.current_context = None
+
+    def eval (self, node):
+        """actual rule evaluation.
+            implementations should return the result of their check."""
+        return True
+
+    @report_info
+    def visit (self, node):
+        self.check_result.append (self.eval (node))
 
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))

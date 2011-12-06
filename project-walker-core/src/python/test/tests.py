@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import logging
 import unittest
 import shutil
 import os
@@ -13,6 +14,9 @@ class BasicTest (unittest.TestCase):
 
     def setUp (self):
         # copy test directory tree
+
+        logging.basicConfig (filename = 'test-output.log', level = logging.DEBUG)
+
 
         os.makedirs ('sandbox')
         dst = os.path.join ('sandbox', 'sample')
@@ -70,7 +74,7 @@ class BasicTest (unittest.TestCase):
         checker = ProjectWalker.ProjectCheckEvaluator (tree)
 
         check_status = checker.walk (check)
-        print check_status
+        print check_status.getReport ()
 
     def test_evaluate_predicated_checker (self):
         check = JavaFileExistsNTimesCheck ()
@@ -113,10 +117,11 @@ class FileNameContainsNumberCheck (ProjectWalker.Checker):
     def __init__ (self):
         ProjectWalker.Checker.__init__ (self, 'FileNameContainsNumberCheck')
 
-    def visit (self, node):
+    def eval (self, node):
         r = re.search ('\d', node.file_attrs ['file_name'])
         if r is not None:
-            self.addResult (r is not None)
+            return 'contains digit'
+        return  'does not contain digit'
 
 import fnmatch
 # could even inhert from FileNameContainsNumberCheck, but like this is funnier
@@ -126,10 +131,12 @@ class JavaFileExistsNTimesCheck (ProjectWalker.Checker):
         ProjectWalker.Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
         self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], '*.java'))
 
-    def visit (self, node):
+    def eval (self, node):
         """yep, this is redundant. just for fun"""
         if fnmatch.fnmatch (node.file_attrs ['file_name'], '*.java'):
             self.check_result.append (node.file_attrs ['file_name'])
+            return 'failure'
+        return 'success'
 
 # lets rumble
 if __name__ == '__main__':
