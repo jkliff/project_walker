@@ -2,17 +2,36 @@ import os
 import logging
 
 """some eye/finger-candy"""
+_t = lambda m: logging.debug (m)
 _d = lambda m: logging.debug (m)
 _i = lambda m: logging.info (m)
 _w = lambda m: logging.warn (m)
 _e = lambda m: logging.error (m)
+
+"""decorators"""
+
+def report_debug (f):
+    def w (*args, **kws):
+        _d ('Entering %s' % f)
+        r = f(*args, **kws)
+        _d ('Exiting %s' % f)
+        return r
+    return w
+
+def report_info (f):
+    def w (*args, **kws):
+        _i ('Entering %s' % f)
+        r = f(*args, **kws)
+        _i ('Exiting %s:' % f)
+        return r
+    return w
 
 class Visitor:
     def __init__ (self):
         self.accept_rules = []
         self.deny_rules = []
 
-    @report_trace
+    @report_debug
     def appliesTo (self, n):
         for predicate in self.accept_rules:
             if not predicate (n):
@@ -186,7 +205,14 @@ class Checker (Visitor):
         # read-only!
         self.current_context = None
 
-    def visit (self, project_node)
+    def eval (self, node):
+        """actual rule evaluation.
+            implementations should return the result of their check."""
+        return True
+
+    @report_info
+    def visit (self, node):
+        self.check_result.append (self.eval (node))
 
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))
