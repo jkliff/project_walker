@@ -53,6 +53,8 @@ class TestInterpol(unittest.TestCase):
     def test_stringReplacement1(self):
         self.assertEqual('FOOquuxbar', interpol(self.v, '%{other:foo:FOO}bar'))
 
-    def test_stringReplacement2(self):
+    def test_string_replacement2(self):
         self.assertEqual('quuxbar', interpol(self.v, '%{other:foo:}bar'))
 
+if __name__ == '__main__':
+    unittest.main ()
