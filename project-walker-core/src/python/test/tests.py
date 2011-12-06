@@ -7,6 +7,8 @@ import os.path
 
 import ProjectWalker
 
+from ProjectWalker import ProjectStructureTreeBuilder
+
 class BasicTest (unittest.TestCase):
 
     def setUp (self):
@@ -90,8 +92,6 @@ class BasicTest (unittest.TestCase):
         tree_builder = ProjectStructureTreeBuilder ()
         return tree_builder.build ('sandbox/sample')
 
-
-
 class InfoGathererVisitor (ProjectWalker.Visitor):
     def __init__ (self):
         ProjectWalker.Visitor.__init__ (self)
@@ -104,78 +104,14 @@ class InfoGathererVisitor (ProjectWalker.Visitor):
     def getOutput (self):
         return '\n'.join (self.visited_nodes)
 
-class ProjectNode (ProjectWalker.Node):
-    def __init__ (self, root_path):
-        ProjectWalker.Node.__init__ (self, root_path)
-        self.file_attrs = {}
-
-class ProjectStructureTreeBuilder (ProjectWalker.TreeBuilder):
-    def __init__ (self):
-        ProjectWalker.TreeBuilder.__init__ (self)
-
-    def build (self, root_path):
-        node = ProjectNode (root_path)
-        node.file_attrs = {
-            'file_name': root_path,
-            'path': None,
-            'full_path': node.data,
-            'type': self.ResolveFileType (node.data)
-        }
-
-        return ProjectWalker.TreeBuilder.build (self, node)
-
-    def gather (self, node):
-        if node.file_attrs ['type'] != 'd':
-            return
-
-        r = node.data
-        paths = os.listdir (r)
-        children = []
-
-        for p in paths:
-            n = ProjectNode (os.path.join (r, p))
-            n.file_attrs = {
-                'file_name': p,
-                'path': r,
-                'full_path': n.data,
-                'type': self.ResolveFileType(n.data)
-            }
-            children.append (n)
-
-        return children
-
-    def ResolveFileType (self, full_path):
-        t = None
-        if os.path.isdir (full_path):
-            t = 'd'
-        elif os.path.isfile (full_path):
-            t = 'f'
-        return t
-
-
-class Checker (ProjectWalker.Visitor):
-    def __init__ (self, name):
-        ProjectWalker.Visitor.__init__ (self)
-        self.name = name
-        self.check_result = []
-        # read-only!
-        self.current_context = None
-
-    def addResult (self, result):
-        self.check_result.append ((self.current_context, result))
-
-    def getReport (self):
-        """Gives the possibility to include report-generation facilities (just call this instead of getOutput, which generally is rather raw, so to say."""
-        return "It was a pleasure evaluating such a nice project with %s failures for %s evaluated nodes" % (0, len (self.check_result))
-
-    def getOutput (self):
-        return self.check_result
-
+"""The following checks are only for tests.
+If we were to write useful concrete checks they should go into some sort of 'library structure' from where they could be loaded. 
+"""
 import re
 
-class FileNameContainsNumberCheck (Checker):
+class FileNameContainsNumberCheck (ProjectWalker.Checker):
     def __init__ (self):
-        Checker.__init__ (self, 'FileNameContainsNumberCheck')
+        ProjectWalker.Checker.__init__ (self, 'FileNameContainsNumberCheck')
 
     def visit (self, node):
         r = re.search ('\d', node.file_attrs ['file_name'])
@@ -184,10 +120,10 @@ class FileNameContainsNumberCheck (Checker):
 
 import fnmatch
 # could even inhert from FileNameContainsNumberCheck, but like this is funnier
-class JavaFileExistsNTimesCheck (Checker):
+class JavaFileExistsNTimesCheck (ProjectWalker.Checker):
     """violation currently fixed for 2 times"""
     def __init__ (self):
-        Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
+        ProjectWalker.Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
         self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], '*.java'))
 
     def visit (self, node):
@@ -195,5 +131,6 @@ class JavaFileExistsNTimesCheck (Checker):
         if fnmatch.fnmatch (node.file_attrs ['file_name'], '*.java'):
             self.check_result.append (node.file_attrs ['file_name'])
 
+# lets rumble
 if __name__ == '__main__':
     unittest.main ()
