@@ -1,4 +1,9 @@
 import os
+import logging
+
+"""some finger-candy"""
+
+
 
 class Visitor:
     def __init__ (self):
@@ -129,7 +134,7 @@ class ProjectStructureTreeBuilder (TreeBuilder):
             'file_name': root_path,
             'path': None,
             'full_path': node.data,
-            'type': self.ResolveFileType (node.data)
+            'type': ProjectStructureTreeBuilder.ResolveFileType (node.data)
         }
 
         return TreeBuilder.build (self, node)
@@ -148,13 +153,14 @@ class ProjectStructureTreeBuilder (TreeBuilder):
                 'file_name': p,
                 'path': r,
                 'full_path': n.data,
-                'type': self.ResolveFileType(n.data)
+                'type': ProjectStructureTreeBuilder.ResolveFileType(n.data)
             }
             children.append (n)
 
         return children
 
-    def ResolveFileType (self, full_path):
+    @staticmethod
+    def ResolveFileType (full_path):
         t = None
         if os.path.isdir (full_path):
             t = 'd'
