@@ -1,15 +1,18 @@
 import os
 import logging
 
-"""some finger-candy"""
-
-
+"""some eye/finger-candy"""
+_d = lambda m: logging.debug (m)
+_i = lambda m: logging.info (m)
+_w = lambda m: logging.warn (m)
+_e = lambda m: logging.error (m)
 
 class Visitor:
     def __init__ (self):
         self.accept_rules = []
         self.deny_rules = []
 
+    @report_trace
     def appliesTo (self, n):
         for predicate in self.accept_rules:
             if not predicate (n):
@@ -20,12 +23,15 @@ class Visitor:
                 return False
         return True
 
+    @report_debug
     def pre_visit (self, n):
         pass
 
+    @report_debug
     def visit (self, n):
         pass
 
+    @report_debug
     def post_visit (self, n):
         pass
 
@@ -87,6 +93,7 @@ class TreeWalker:
 
         return visitor
 
+    @report_debug
     def walkNode (self, node, visitor):
         if visitor.appliesTo (node):
             visitor.pre_visit (node)
@@ -106,12 +113,14 @@ class ProjectCheckEvaluator (TreeWalker):
         TreeWalker.__init__ (self, tree)
         self.context = {}
 
+    @report_debug
     def walk (self, checker):
         self.context ['idx'] = 0
         result = TreeWalker.walk (self, checker)
 
         return result
 
+    @report_debug
     def walkNode (self, node, checker):
         self.context ['idx'] = self.context ['idx'] + 1
 
@@ -176,6 +185,8 @@ class Checker (Visitor):
         self.check_result = []
         # read-only!
         self.current_context = None
+
+    def visit (self, project_node)
 
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))
