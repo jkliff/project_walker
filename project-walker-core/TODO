@@ -5,6 +5,7 @@ Bugs:
 
 Unsure:
 - currently the reporting facility occurs only at the end. maybe it is interesting to report errors immediatelly
+- need to figure out if TreeWalker itself must provide some sort osupport for chaining of data through pre_visit, visit and post_visit node calls.
 
 Core features:
 - output messages to log according to evaluation of the execution 
