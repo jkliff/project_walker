@@ -1,3 +1,5 @@
+import os
+
 class Visitor:
     def __init__ (self):
         self.accept_rules = []
@@ -111,4 +113,71 @@ class ProjectCheckEvaluator (TreeWalker):
         checker.current_context = self.context
         TreeWalker.walkNode (self, node, checker)
         checker.current_context = None
+
+class ProjectNode (Node):
+    def __init__ (self, root_path):
+        Node.__init__ (self, root_path)
+        self.file_attrs = {}
+
+class ProjectStructureTreeBuilder (TreeBuilder):
+    def __init__ (self):
+        TreeBuilder.__init__ (self)
+
+    def build (self, root_path):
+        node = ProjectNode (root_path)
+        node.file_attrs = {
+            'file_name': root_path,
+            'path': None,
+            'full_path': node.data,
+            'type': self.ResolveFileType (node.data)
+        }
+
+        return TreeBuilder.build (self, node)
+
+    def gather (self, node):
+        if node.file_attrs ['type'] != 'd':
+            return
+
+        r = node.data
+        paths = os.listdir (r)
+        children = []
+
+        for p in paths:
+            n = ProjectNode (os.path.join (r, p))
+            n.file_attrs = {
+                'file_name': p,
+                'path': r,
+                'full_path': n.data,
+                'type': self.ResolveFileType(n.data)
+            }
+            children.append (n)
+
+        return children
+
+    def ResolveFileType (self, full_path):
+        t = None
+        if os.path.isdir (full_path):
+            t = 'd'
+        elif os.path.isfile (full_path):
+            t = 'f'
+        return t
+
+
+class Checker (Visitor):
+    def __init__ (self, name):
+        Visitor.__init__ (self)
+        self.name = name
+        self.check_result = []
+        # read-only!
+        self.current_context = None
+
+    def addResult (self, result):
+        self.check_result.append ((self.current_context, result))
+
+    def getReport (self):
+        """Gives the possibility to include report-generation facilities (just call this instead of getOutput, which generally is rather raw, so to say."""
+        return "It was a pleasure evaluating such a nice project with %s failures for %s evaluated nodes" % (0, len (self.check_result))
+
+    def getOutput (self):
+        return self.check_result
 
