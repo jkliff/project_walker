@@ -5,6 +5,7 @@ import unittest
 import shutil
 import os
 import os.path
+import tempfile
 
 import ProjectWalker
 
@@ -12,23 +13,27 @@ from ProjectWalker import ProjectStructureTreeBuilder
 
 class BasicTest (unittest.TestCase):
 
+    tempdir = None
+    tempsandbox = None
+
     def setUp (self):
         # copy test directory tree
 
         logging.basicConfig (filename = 'test-output.log', level = logging.DEBUG)
 
-
-        os.makedirs ('sandbox')
-        dst = os.path.join ('sandbox', 'sample')
-        src = os.path.join ('resources', 'sample')
+        self.tempdir = tempfile.mkdtemp ()
+        self.tempsandbox = os.path.join (self.tempdir, 'sandbox')
+        os.makedirs (self.tempsandbox)
+        dst = os.path.join (self.tempsandbox, 'sample')
+        src = os.path.join (os.path.dirname(os.path.realpath(__file__)), '..', '..', 'resources', 'sample')
         shutil.copytree (src, dst)
 
     def tearDown (self):
-        shutil.rmtree ('sandbox')
+        shutil.rmtree (self.tempdir)
 
     def test_build_all_nodes (self):
         tree_builder = ProjectStructureTreeBuilder ()
-        tree = tree_builder.build ('sandbox/sample')
+        tree = tree_builder.build (os.path.join( self.tempsandbox, 'sample'))
 
         print 'tree object'
         print tree
@@ -94,7 +99,7 @@ class BasicTest (unittest.TestCase):
 
     def __tree (self):
         tree_builder = ProjectStructureTreeBuilder ()
-        return tree_builder.build ('sandbox/sample')
+        return tree_builder.build (os.path.join(self.tempsandbox, 'sample'))
 
 class InfoGathererVisitor (ProjectWalker.Visitor):
     def __init__ (self):

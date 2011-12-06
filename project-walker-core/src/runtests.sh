@@ -1,2 +1,2 @@
-PYTHONPATH=python/main/ python -m unittest discover python/test 
-#python python/test/tests.py 
+PYTHONPATH=python/main/ python2.7 -m unittest discover python/test
+#python2.7 python/test/tests.py
