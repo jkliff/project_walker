@@ -8,6 +8,7 @@ Unsure:
 - need to figure out if TreeWalker itself must provide some sort osupport for chaining of data through pre_visit, visit and post_visit node calls.
 
 Core features:
+- have a command line interface (suggestion: ArgumentParser makes this really easy: http://docs.python.org/library/argparse.html)
 - output messages to log according to evaluation of the execution 
 - possibility to run as configured a series of check rules
 
