@@ -11,12 +11,17 @@ class FileExistsChecker (ProjectWalker.Checker):
     def __init__ (self, vars, config):
         ProjectWalker.Checker.__init__ (self, self.__class__, vars, config)
         for f in config['requiredFiles']:
-            self.fileCount[f] = 0
+            self.fileCount[self.interpolatePathExpression(f)] = 0
 
     def eval (self, node):
         result = []
         for f in self.fileCount.iterkeys():
-            if f == node.file_attrs['full_path']:
+            # handle absolute and relative paths differently
+            if f[0:1] == '/':
+                attr = 'full_path'
+            else:
+                attr = 'file_name'
+            if f == node.file_attrs[attr]:
                 self.fileCount[f] = self.fileCount[f] + 1
         return None
 

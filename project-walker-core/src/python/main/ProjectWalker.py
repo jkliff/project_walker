@@ -214,6 +214,7 @@ class Checker (Visitor):
         self.name = name
         self.check_result = []
         # read-only!
+        self.vars = vars
         self.config = interpol(vars, config)
         self.current_context = None
 
@@ -244,4 +245,10 @@ class Checker (Visitor):
 
     def interpolateNode (self, node):
         return interpol(node.file_attrs, self.config)
+
+    def interpolatePathExpression(self, path):
+        if path[0:1] == '/':
+            return self.vars['project_path'] + path
+        else:
+            return path
 

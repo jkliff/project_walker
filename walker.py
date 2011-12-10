@@ -30,7 +30,8 @@ config = load(open(args.config, 'r'))
 if 'vars' not in config:
     config['vars'] = {}
 
-config['vars']['project'] = os.path.abspath(args.project)
+config['vars']['project_path'] = os.path.abspath(args.project)
+config['vars']['project'] = os.path.basename(os.path.abspath(args.project))
 
 checkers = []
 for rule_name, rule_config in config['rules'].iteritems():
