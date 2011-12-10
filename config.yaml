@@ -1,0 +1,11 @@
+vars:
+    authors: Authors
+
+rules:
+    FileExistsChecker:
+      requiredFiles:
+          - '%project/project-walker-core1'
+          - '%project/project-walker-core2'
+    FileContainsChecker:
+      matches: '*.py'
+      contains: ["Copyright %authors"]

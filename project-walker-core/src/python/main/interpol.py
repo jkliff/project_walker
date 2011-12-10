@@ -24,7 +24,7 @@ def _interpol_str(var, string):
             string = r.sub(v[int(m.group(1)):], string)
 
         # simplest pattern
-        string = re.sub('%\{?' + k + '\}?', v, string)
+        string = re.sub('%\{?' + k + '\}?', str(v), string)
 
     return string
 

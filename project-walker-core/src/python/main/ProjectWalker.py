@@ -1,6 +1,8 @@
 import os
 import logging
 
+from interpol import interpol
+
 """some eye/finger-candy"""
 _t = lambda m: logging.debug (m)
 _d = lambda m: logging.debug (m)
@@ -136,6 +138,7 @@ class ProjectCheckEvaluator (TreeWalker):
     def walk (self, checker):
         self.context ['idx'] = 0
         result = TreeWalker.walk (self, checker)
+        checker.walkFinished ()
 
         return result
 
@@ -160,6 +163,8 @@ class ProjectStructureTreeBuilder (TreeBuilder):
         node = ProjectNode (root_path)
         node.file_attrs = {
             'file_name': root_path,
+            'name': os.path.basename(os.path.splitext(root_path)[0]),
+            'extension': os.path.splitext(root_path)[-1][1:],
             'path': None,
             'full_path': node.data,
             'type': ProjectStructureTreeBuilder.ResolveFileType (node.data)
@@ -179,6 +184,8 @@ class ProjectStructureTreeBuilder (TreeBuilder):
             n = ProjectNode (os.path.join (r, p))
             n.file_attrs = {
                 'file_name': p,
+                'name': os.path.basename(os.path.splitext(p)[0]),
+                'extension': os.path.splitext(p)[-1][1:],
                 'path': r,
                 'full_path': n.data,
                 'type': ProjectStructureTreeBuilder.ResolveFileType(n.data)
@@ -197,12 +204,17 @@ class ProjectStructureTreeBuilder (TreeBuilder):
         return t
 
 
+# TODO stores whether it is needed to interpolate
+# ASK howto loop on a list of configs
+# ASK getReport vs. getOutput
+# ASK addResult why tuple?
 class Checker (Visitor):
-    def __init__ (self, name):
+    def __init__ (self, name, vars, config):
         Visitor.__init__ (self)
         self.name = name
         self.check_result = []
         # read-only!
+        self.config = interpol(vars, config)
         self.current_context = None
 
     def eval (self, node):
@@ -212,7 +224,13 @@ class Checker (Visitor):
 
     @report_info
     def visit (self, node):
-        self.check_result.append (self.eval (node))
+        result = self.eval (node)
+        if result:
+            self.check_result.append (result)
+
+    def walkFinished(self):
+        """Needed for checks which evaluate their results after all files have been walked."""
+        pass
 
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))
@@ -223,4 +241,7 @@ class Checker (Visitor):
 
     def getOutput (self):
         return self.check_result
+
+    def interpolateNode (self, node):
+        return interpol(node.file_attrs, self.config)
 
