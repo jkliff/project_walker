@@ -3,7 +3,11 @@
 import re
 
 def _interpol_str(var, string):
-    for k, v in var.iteritems():
+    keys = var.keys()
+    keys.sort(key=len, reverse=True)
+    for k in keys:
+        v = var[k]
+
         # %identifier:foo:bar - replace foo to bar in string
         r = re.compile('%\{' + k + ':([a-zA-Z]+):([^}]*)\}')
         m = r.match(string)
@@ -24,7 +28,7 @@ def _interpol_str(var, string):
             string = r.sub(v[int(m.group(1)):], string)
 
         # simplest pattern
-        string = re.sub('%\{?' + k + '\}?', v, string)
+        string = re.sub('%\{?' + k + '\}?', str(v), string)
 
     return string
 

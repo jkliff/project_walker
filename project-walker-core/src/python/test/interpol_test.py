@@ -8,11 +8,15 @@ class TestInterpol(unittest.TestCase):
     v = {
             'this': 'foo',
             'that': 'bar',
-            'other': 'fooquux'
+            'other': 'fooquux',
+            'other_joo': 'FOOQUUX'
             }
 
     def test_stringWithOneValue(self):
         self.assertEqual('foo bar', interpol(self.v, '%this bar'))
+
+    def test_stringWithOneValue(self):
+        self.assertEqual('FOOQUUX bar', interpol(self.v, '%other_joo bar'))
 
     def test_stringWithTwoValues(self):
         self.assertEqual('foo bar', interpol(self.v, '%this %that'))
