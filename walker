@@ -1,0 +1,6 @@
+#! /bin/sh
+if [[ $1 = 'test' ]]; then
+    PYTHONPATH=project-walker-core/src/python/main nosetests-2.7 -w project-walker-core/src/python/test
+else
+    PYTHONPATH=project-walker-core/src/python/main python2.7 ./walker.py $@
+fi
