@@ -26,15 +26,15 @@ Configuration syntax is in [YAML](http://en.wikipedia.org/wiki/YAML).
         authors: Authors
 
     rules:
-        FileExistsChecker:
-          requiredFiles:
-              - '%{project_path}/project-walker-core1'
-              - '/project-walker-core2'
-              - 'project-walker-core3'
-              - 'interpol.py'
-        FileContainsChecker:
-          matches: '*.py'
-          contains: ["Copyright %authors"]
+        - FileExistsChecker:
+            requiredFiles:
+                - '%{project_path}/project-walker-core1'
+                - '/project-walker-core2'
+                - 'project-walker-core3'
+                - 'interpol.py'
+        - FileContainsChecker:
+            matches: '*.py'
+            contains: ["Copyright %authors"]
 
 ### Rules
 

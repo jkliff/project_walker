@@ -7,11 +7,12 @@ import ProjectWalker
 # should handle glob expressions in paths
 class FileExistsChecker (ProjectWalker.Checker):
 
-    fileCount = {}
-    requiredCount = 1
-
     def __init__ (self, vars, config):
         ProjectWalker.Checker.__init__ (self, self.__class__, vars, config)
+
+        self.fileCount = {}
+        self.requiredCount = 1
+
         for f in config['requiredFiles']:
             self.fileCount[self.interpolatePathExpression(f)] = 0
         if 'count' in config:
