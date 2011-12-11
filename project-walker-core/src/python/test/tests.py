@@ -11,6 +11,10 @@ import ProjectWalker
 
 from ProjectWalker import ProjectStructureTreeBuilder
 
+def printStatus (status):
+    for s in status:
+        print s
+
 class BasicTest (unittest.TestCase):
 
     tempdir = None
@@ -43,10 +47,9 @@ class BasicTest (unittest.TestCase):
         tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
-        visitor_output = walker.walk (visitor)
+        visitor_output = walker.walk ([visitor])
         print 'All nodes:'
-        print visitor_output.getOutput ()
-        print visitor_output.getReport ()
+        printStatus(visitor_output)
 
     def test_apply_predicate_dirs (self):
         visitor = InfoGathererVisitor ()
@@ -55,10 +58,9 @@ class BasicTest (unittest.TestCase):
         tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
-        visitor_output = walker.walk (visitor)
+        visitor_output = walker.walk ([visitor])
         print 'Only directories'
-        print visitor_output.getOutput ()
-        print visitor_output.getReport ()
+        printStatus(visitor_output)
 
     def test_apply_predicate_java_files (self):
         visitor = InfoGathererVisitor ()
@@ -68,26 +70,25 @@ class BasicTest (unittest.TestCase):
         tree = self.__tree ()
         walker = ProjectWalker.TreeWalker (tree)
 
-        visitor_output = walker.walk (visitor)
+        visitor_output = walker.walk ([visitor])
         print 'Only non-java files'
-        print visitor_output.getOutput ()
-        print visitor_output.getReport ()
+        printStatus(visitor_output)
 
     def test_evaluate_checker (self):
         check = FileNameContainsNumberCheck ()
         tree = self.__tree ()
         checker = ProjectWalker.ProjectCheckEvaluator (tree)
 
-        check_status = checker.walk (check)
-        print check_status.getReport ()
+        check_status = checker.walk ([check])
+        printStatus(check_status)
 
     def test_evaluate_predicated_checker (self):
         check = JavaFileExistsNTimesCheck ()
         tree = self.__tree ()
         checker = ProjectWalker.ProjectCheckEvaluator (tree)
 
-        check_status = checker.walk (check)
-        print check_status.getReport ()
+        check_status = checker.walk ([check])
+        printStatus(check_status)
 
     def test_evaluate_parameterized_checker (self):
         #checker = FileContentContainsCharacter ('x')
@@ -110,9 +111,6 @@ class InfoGathererVisitor (ProjectWalker.Visitor):
         node_data = (n.file_attrs ['full_path'])
         self.visited_nodes.append (node_data)
 
-    def getOutput (self):
-        return '\n'.join (self.visited_nodes)
-
 """The following checks are only for tests.
 If we were to write useful concrete checks they should go into some sort of 'library structure' from where they could be loaded. 
 """
@@ -120,7 +118,7 @@ import re
 
 class FileNameContainsNumberCheck (ProjectWalker.Checker):
     def __init__ (self):
-        ProjectWalker.Checker.__init__ (self, 'FileNameContainsNumberCheck')
+        ProjectWalker.Checker.__init__ (self, 'FileNameContainsNumberCheck', None, None)
 
     def eval (self, node):
         r = re.search ('\d', node.file_attrs ['file_name'])
@@ -133,7 +131,7 @@ import fnmatch
 class JavaFileExistsNTimesCheck (ProjectWalker.Checker):
     """violation currently fixed for 2 times"""
     def __init__ (self):
-        ProjectWalker.Checker.__init__ (self, 'JavaFileNameContainsNumberCheck')
+        ProjectWalker.Checker.__init__ (self, 'JavaFileNameContainsNumberCheck', None, None)
         self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], '*.java'))
 
     def eval (self, node):

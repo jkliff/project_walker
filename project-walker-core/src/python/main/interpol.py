@@ -59,6 +59,9 @@ def interpol(var,v):
 
        All identifiers support curly braces where the pattern is embedded in another string.
     """
+    if not var or not v:
+        return v
+
     m = { dict: _interpol_dct,
           list: _interpol_lst,
           set: _interpol_set,
