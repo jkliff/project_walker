@@ -95,7 +95,11 @@ project root so these two are equivalent:
 
 Files without _/_ are searched as is in the project tree.
 
+The checker support a _count_ option. The required files need to be present so
+many times in the project. Default is one. The count must be matched exactly.
+
 ### FileContainsChecker
 
 Checks whether files in _matches_ contain the strings in _contains_. The
-contains option supports interpolation.
+contains option supports interpolation. Both matches, and contains support
+lists or plain strings.

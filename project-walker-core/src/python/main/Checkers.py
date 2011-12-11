@@ -8,11 +8,14 @@ import ProjectWalker
 class FileExistsChecker (ProjectWalker.Checker):
 
     fileCount = {}
+    requiredCount = 1
 
     def __init__ (self, vars, config):
         ProjectWalker.Checker.__init__ (self, self.__class__, vars, config)
         for f in config['requiredFiles']:
             self.fileCount[self.interpolatePathExpression(f)] = 0
+        if 'count' in config:
+            requiredCount = config['count']
 
     def eval (self, node):
         result = []
@@ -28,19 +31,34 @@ class FileExistsChecker (ProjectWalker.Checker):
 
     def evalOnEnd(self):
         for f, c in self.fileCount.iteritems():
-            if c == 0:
-                self.addResult("Could not find file [{}]".format(f))
+            if c != self.requiredCount:
+                if self.requiredCount == 1:
+                    self.addResult("Could not find file [{}]".format(f))
+                else:
+                    self.addResult("Found file [{}] [{}] times, required [{}]".format(f, c, self.requiredCount))
+
 
 class FileContainsChecker (ProjectWalker.Checker):
     def __init__ (self, vars, config):
         ProjectWalker.Checker.__init__ (self, self.__class__, vars, config)
-        self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], config['matches']))
+        if type(config['matches']) == list:
+            matches = config['matches']
+        else:
+            matches = [config['matches']]
+        for match in matches:
+            self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], match))
 
     def eval (self, node):
-        current_confing = self.interpolateNode(node)
+        current_config = self.interpolateNode(node)
         fpath = node.file_attrs['full_path']
         contains = {}
-        for c in current_confing['contains']:
+
+        if type(current_config['contains']) == list:
+            contains_config = current_config['contains']
+        else:
+            contains_config = [current_config['contains']]
+
+        for c in contains_config:
             contains[c] = {}
             contains[c]['re'] = re.compile(c)
             contains[c]['found'] = False
