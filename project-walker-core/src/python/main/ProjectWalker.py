@@ -53,7 +53,7 @@ class Visitor:
         pass
 
     @report_debug
-    def post_visit (self):
+    def post_visit (self, n):
         pass
 
     @report_debug
@@ -128,7 +128,7 @@ class TreeWalker:
         for c in l:
             self.walkNode (c, visitor)
 
-        visitor.post_visit ()
+        visitor.post_visit (node)
 
 class ProjectCheckEvaluator (TreeWalker):
     def __init__ (self, tree):
@@ -211,6 +211,17 @@ class CheckerStatus:
     def isSuccessful (self):
         return not self.check_result
 
+"""Checker parent class with life cycle methods. To actual checkers need to sub-class
+this class with the actual life cycle methods implemented. At least _eval_ should be
+implemented.
+
+Life cycle methods:
+
+* eval - called on each node
+
+* evalOnSubTreeEnd - called when all children of current node are processed
+
+* evalOnEnd - called when walking of the tree is finished"""
 class Checker (Visitor):
     def __init__ (self, name, vars, config):
         Visitor.__init__ (self)
@@ -222,13 +233,18 @@ class Checker (Visitor):
         self.current_context = None
 
     def eval (self, node):
-        """Actual rule evaluation. Implementations should return the result of their check.
-           Should return none if successful otherwise a meaningful error message."""
+        """Actual rule evaluation. Should return None if successful otherwise a meaningful
+           error message. This method is called on each node."""
         return None
 
-    def evalOnEnd(self):
+    def evalOnEnd (self):
         """Needed for checks which evaluate their results after all files have been walked.
-           Should return none if successful otherwise a meaningful error message."""
+           Should return None if successful otherwise a meaningful error message."""
+        return None
+
+    def evalOnSubTreeEnd (self, node):
+        """This method is evaluated of all the children of the current node are processed.
+           Should return None if successful otherwise a meaningful error message."""
         return None
 
     @report_info
@@ -240,6 +256,12 @@ class Checker (Visitor):
     @report_info
     def post_walk (self):
         result = self.evalOnEnd ()
+        if result:
+            self.check_result.append (result)
+
+    @report_info
+    def post_visit (self, node):
+        result = self.evalOnSubTreeEnd (node)
         if result:
             self.check_result.append (result)
 
