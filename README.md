@@ -36,10 +36,25 @@ Configuration syntax is in [YAML](http://en.wikipedia.org/wiki/YAML).
           matches: '*.py'
           contains: ["Copyright %authors"]
 
+### Rules
+
+In this section one can list the rules, which are used to check a project. It
+begins with the name of a check. Each checker has different configuration
+options, and each supports interpolation on different options. Generally it
+can be sad that the _matches_ option does not support interpolation just
+globbing expressions.
+
 ### Vars
 
-Here one can define variables used below in the configuration. Syntax for
-embedding variables is as follows:
+This is an optional section.
+
+Here one can define variables used below in the configuration.
+
+
+Emedding variables
+------------------
+
+Syntax for embedding variables is as follows:
 
     %var
 
@@ -72,15 +87,6 @@ variables:
  * full_path - full path with file name
 
  * type - d / f depending whether file is a directory or not
-
-### Rules
-
-In this section one can list the rules, which are used to check a project. It
-begins with the name of a check. Each checker has different configuration
-options, and each supports interpolation on different options. Generally it
-can be sad that the _matches_ option does not support interpolation just
-globbing expressions.
-
 Checks
 ------
 

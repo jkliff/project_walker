@@ -66,8 +66,7 @@ def interpol(var,v):
           list: _interpol_lst,
           set: _interpol_set,
           str: _interpol_str }
-    t = type(v)
-    if m[t]:
+    if type(v) in m:
         return m[type(v)](var, v);
     else:
         return v

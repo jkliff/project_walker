@@ -15,7 +15,7 @@ class FileExistsChecker (ProjectWalker.Checker):
         for f in config['requiredFiles']:
             self.fileCount[self.interpolatePathExpression(f)] = 0
         if 'count' in config:
-            requiredCount = config['count']
+            self.requiredCount = config['count']
 
     def eval (self, node):
         result = []
@@ -35,7 +35,7 @@ class FileExistsChecker (ProjectWalker.Checker):
                 if self.requiredCount == 1:
                     self.addResult("Could not find file [{}]".format(f))
                 else:
-                    self.addResult("Found file [{}] [{}] times, required [{}]".format(f, c, self.requiredCount))
+                    self.addResult("Found file [{}] {} time(s), required {}.".format(f, c, self.requiredCount))
 
 
 class FileContainsChecker (ProjectWalker.Checker):

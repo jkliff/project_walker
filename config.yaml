@@ -3,6 +3,7 @@ vars:
 
 rules:
     FileExistsChecker:
+      count: 2
       requiredFiles:
           - '%{project_path}/project-walker-core1'
           - '/project-walker-core2'
