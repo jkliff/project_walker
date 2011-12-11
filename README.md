@@ -109,3 +109,24 @@ many times in the project. Default is one. The count must be matched exactly.
 Checks whether files in _matches_ contain the strings in _contains_. The
 contains option supports interpolation. Both matches, and contains support
 lists or plain strings.
+
+Development
+-----------
+
+Code is formatted with [PythonTidy](http://pypi.python.org/pypi/PythonTidy).
+
+Authors
+-------
+
+* John Kliff Jochens
+* Tamás Eppel
+
+License
+-------
+
+All files licensed under the 3-clause BSD license, full text see in LICENSE.
+
+Copyright
+---------
+
+2011, Authors
