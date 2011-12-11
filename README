@@ -1,3 +1,0 @@
-To try out:
-
-PYTHONPATH=project-walker-core/src/python/main ./walker.py --config ./config.yaml .
