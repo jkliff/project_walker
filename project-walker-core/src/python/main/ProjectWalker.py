@@ -45,7 +45,7 @@ class Visitor:
         return True
 
     @report_debug
-    def pre_visit (self, n):
+    def pre_walk (self):
         pass
 
     @report_debug
@@ -53,13 +53,12 @@ class Visitor:
         pass
 
     @report_debug
-    def post_visit (self, n):
+    def post_visit (self):
         pass
 
-    def getOutput (self):
-        return None
-    def getReport (self):
-        return None
+    @report_debug
+    def post_walk (self):
+        pass
 
     def addAcceptRule (self, rules):
         if type (list) != type (rules):
@@ -109,25 +108,27 @@ class TreeWalker:
     def __init__ (self, tree):
         self.root = tree.root
 
-    def walk (self, visitor):
-        self.walkNode (self.root, visitor)
+    def walk (self, visitors):
+        for visitor in visitors:
+            visitor.pre_walk ()
+            self.walkNode (self.root, visitor)
+            visitor.post_walk ()
 
-        return visitor
+        return visitors
 
     @report_debug
     def walkNode (self, node, visitor):
         if visitor.appliesTo (node):
-            visitor.pre_visit (node)
             visitor.visit (node)
-            visitor.post_visit (node)
 
         l = node.children
-
         if l is None:
             return
 
         for c in l:
             self.walkNode (c, visitor)
+
+        visitor.post_visit ()
 
 class ProjectCheckEvaluator (TreeWalker):
     def __init__ (self, tree):
@@ -135,12 +136,11 @@ class ProjectCheckEvaluator (TreeWalker):
         self.context = {}
 
     @report_debug
-    def walk (self, checker):
+    def walk (self, checkers):
         self.context ['idx'] = 0
-        result = TreeWalker.walk (self, checker)
-        checker.walkFinished ()
 
-        return result
+        return [c.getStatus() for c in TreeWalker.walk (self, checkers)]
+
 
     @report_debug
     def walkNode (self, node, checker):
@@ -203,6 +203,14 @@ class ProjectStructureTreeBuilder (TreeBuilder):
             t = 'f'
         return t
 
+class CheckerStatus:
+    def __init__ (self, checker_name, check_result):
+        self.checker_name = checker_name
+        self.check_result = check_result
+
+    def isSuccessful (self):
+        return not self.check_result
+
 class Checker (Visitor):
     def __init__ (self, name, vars, config):
         Visitor.__init__ (self)
@@ -214,9 +222,14 @@ class Checker (Visitor):
         self.current_context = None
 
     def eval (self, node):
-        """actual rule evaluation.
-            implementations should return the result of their check."""
-        return True
+        """Actual rule evaluation. Implementations should return the result of their check.
+           Should return none if successful otherwise a meaningful error message."""
+        return None
+
+    def evalOnEnd(self):
+        """Needed for checks which evaluate their results after all files have been walked.
+           Should return none if successful otherwise a meaningful error message."""
+        return None
 
     @report_info
     def visit (self, node):
@@ -224,19 +237,17 @@ class Checker (Visitor):
         if result:
             self.check_result.append (result)
 
-    def walkFinished(self):
-        """Needed for checks which evaluate their results after all files have been walked."""
-        pass
+    @report_info
+    def post_walk (self):
+        result = self.evalOnEnd ()
+        if result:
+            self.check_result.append (result)
 
     def addResult (self, result):
         self.check_result.append ((self.current_context, result))
 
-    def getReport (self):
-        """Gives the possibility to include report-generation facilities (just call this instead of getOutput, which generally is rather raw, so to say."""
-        return "It was a pleasure evaluating such a nice project with %s failures for %s evaluated nodes" % (0, len (self.check_result))
-
-    def getOutput (self):
-        return self.check_result
+    def getStatus (self):
+        return CheckerStatus (self.name, self.check_result)
 
     def interpolateNode (self, node):
         return interpol(node.file_attrs, self.config)

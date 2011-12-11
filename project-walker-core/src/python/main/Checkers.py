@@ -26,7 +26,7 @@ class FileExistsChecker (ProjectWalker.Checker):
                 self.fileCount[f] = self.fileCount[f] + 1
         return None
 
-    def walkFinished(self):
+    def evalOnEnd(self):
         for f, c in self.fileCount.iteritems():
             if c == 0:
                 self.addResult("Could not find file [{}]".format(f))

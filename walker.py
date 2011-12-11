@@ -39,11 +39,12 @@ for rule_name, rule_config in config['rules'].iteritems():
     checkers.append(c(config['vars'], rule_config))
 
 checker = ProjectWalker.ProjectCheckEvaluator (__load_project(args.project))
-for c in checkers:
-    status = checker.walk(c)
-    if status:
-        ok_or_fail = red('FAILED')
-    else:
+status  = checker.walk (checkers)
+
+# todo
+for s in status:
+    if s.isSuccessful ():
         ok_or_fail = green('OK')
-    print "{}[{}]".format(ljust(str(c.__class__), 40), ok_or_fail)
-    # print status.getOutput()
+    else:
+        ok_or_fail = red('FAILED')
+    print "{}[{}]".format(ljust(str(s.checker_name), 40), ok_or_fail)
