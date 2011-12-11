@@ -1,22 +1,25 @@
-#! /usr/bin/python2.7
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from interpol import interpol
 import unittest
 
+
 class TestInterpol(unittest.TestCase):
 
     v = {
-            'this': 'foo',
-            'that': 'bar',
-            'other': 'fooquux',
-            'other_joo': 'FOOQUUX'
-            }
+        'this': 'foo',
+        'that': 'bar',
+        'other': 'fooquux',
+        'other_joo': 'FOOQUUX',
+        }
 
     def test_stringWithOneValue(self):
         self.assertEqual('foo bar', interpol(self.v, '%this bar'))
 
     def test_stringWithOneValue(self):
-        self.assertEqual('FOOQUUX bar', interpol(self.v, '%other_joo bar'))
+        self.assertEqual('FOOQUUX bar', interpol(self.v,
+                         '%other_joo bar'))
 
     def test_stringWithTwoValues(self):
         self.assertEqual('foo bar', interpol(self.v, '%this %that'))
@@ -43,10 +46,12 @@ class TestInterpol(unittest.TestCase):
         self.assertEqual('oqu bar', interpol(self.v, '%other:2:5 bar'))
 
     def test_stringSubstringFromTo2(self):
-        self.assertEqual('oqu bar', interpol(self.v, '%{other:2:5} bar'))
+        self.assertEqual('oqu bar', interpol(self.v, '%{other:2:5} bar'
+                         ))
 
     def test_stringSubstringFromTo3(self):
-        self.assertEqual('oquu bar', interpol(self.v, '%{other:2:-1} bar'))
+        self.assertEqual('oquu bar', interpol(self.v,
+                         '%{other:2:-1} bar'))
 
     def test_stringEmbeddedSubstringFromTo1(self):
         self.assertEqual('oqubar', interpol(self.v, '%other:2:5bar'))
@@ -55,10 +60,13 @@ class TestInterpol(unittest.TestCase):
         self.assertEqual('oqubar', interpol(self.v, '%{other:2:5}bar'))
 
     def test_stringReplacement1(self):
-        self.assertEqual('FOOquuxbar', interpol(self.v, '%{other:foo:FOO}bar'))
+        self.assertEqual('FOOquuxbar', interpol(self.v,
+                         '%{other:foo:FOO}bar'))
 
     def test_stringReplacement2(self):
-        self.assertEqual('quuxbar', interpol(self.v, '%{other:foo:}bar'))
+        self.assertEqual('quuxbar', interpol(self.v, '%{other:foo:}bar'
+                         ))
+
 
 if __name__ == '__main__':
-    unittest.main ()
+    unittest.main()

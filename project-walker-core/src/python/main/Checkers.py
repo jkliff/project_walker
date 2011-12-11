@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import fnmatch
 import os.path
 import re
@@ -5,10 +7,13 @@ import re
 import ProjectWalker
 
 # should handle glob expressions in paths
-class FileExistsChecker (ProjectWalker.Checker):
 
-    def __init__ (self, vars, config):
-        ProjectWalker.Checker.__init__ (self, self.__class__, vars, config)
+
+class FileExistsChecker(ProjectWalker.Checker):
+
+    def __init__(self, vars, config):
+        ProjectWalker.Checker.__init__(self, self.__class__, vars,
+                config)
 
         self.fileCount = {}
         self.requiredCount = 1
@@ -18,10 +23,12 @@ class FileExistsChecker (ProjectWalker.Checker):
         if 'count' in config:
             self.requiredCount = config['count']
 
-    def eval (self, node):
+    def eval(self, node):
         result = []
         for f in self.fileCount.iterkeys():
+
             # handle absolute and relative paths differently
+
             if f[0:1] == '/':
                 attr = 'full_path'
             else:
@@ -31,25 +38,30 @@ class FileExistsChecker (ProjectWalker.Checker):
         return None
 
     def evalOnEnd(self):
-        for f, c in self.fileCount.iteritems():
+        for (f, c) in self.fileCount.iteritems():
             if c != self.requiredCount:
                 if self.requiredCount == 1:
-                    self.addResult("Could not find file [{}]".format(f))
+                    self.addResult('Could not find file [{}]'.format(f))
                 else:
-                    self.addResult("Found file [{}] {} time(s), required {}.".format(f, c, self.requiredCount))
+                    self.addResult('Found file [{}] {} time(s), required {}.'.format(f,
+                                   c, self.requiredCount))
 
 
-class FileContainsChecker (ProjectWalker.Checker):
-    def __init__ (self, vars, config):
-        ProjectWalker.Checker.__init__ (self, self.__class__, vars, config)
+class FileContainsChecker(ProjectWalker.Checker):
+
+    def __init__(self, vars, config):
+        ProjectWalker.Checker.__init__(self, self.__class__, vars,
+                config)
         if type(config['matches']) == list:
             matches = config['matches']
         else:
             matches = [config['matches']]
         for match in matches:
-            self.addAcceptRule (lambda f: fnmatch.fnmatch(f.file_attrs ['file_name'], match))
+            self.addAcceptRule(lambda f: \
+                               fnmatch.fnmatch(f.file_attrs['file_name'
+                               ], match))
 
-    def eval (self, node):
+    def eval(self, node):
         current_config = self.interpolateNode(node)
         fpath = node.file_attrs['full_path']
         contains = {}
@@ -66,12 +78,15 @@ class FileContainsChecker (ProjectWalker.Checker):
         try:
             f = open(fpath, 'r')
             for l in f:
-                for c_line, c_vals in contains.iteritems():
+                for (c_line, c_vals) in contains.iteritems():
                     if c_vals['re'].search(l):
                         c_vals['found'] = True
                         continue
-            for c_line, c_vals in contains.iteritems():
+            for (c_line, c_vals) in contains.iteritems():
                 if not c_vals['found']:
-                    self.addResult("Could not find line [{}] in file [{}].".format(c_line, fpath))
+                    self.addResult('Could not find line [{}] in file [{}].'.format(c_line,
+                                   fpath))
         except IOError:
-            return self.addResult("Could not open file [{}]".format(fpath))
+            return self.addResult('Could not open file [{}]'.format(fpath))
+
+
