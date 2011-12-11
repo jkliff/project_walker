@@ -203,11 +203,6 @@ class ProjectStructureTreeBuilder (TreeBuilder):
             t = 'f'
         return t
 
-
-# TODO stores whether it is needed to interpolate
-# ASK howto loop on a list of configs
-# ASK getReport vs. getOutput
-# ASK addResult why tuple?
 class Checker (Visitor):
     def __init__ (self, name, vars, config):
         Visitor.__init__ (self)

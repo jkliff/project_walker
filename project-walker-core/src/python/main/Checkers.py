@@ -4,6 +4,7 @@ import re
 
 import ProjectWalker
 
+# should handle glob expressions in paths
 class FileExistsChecker (ProjectWalker.Checker):
 
     fileCount = {}
