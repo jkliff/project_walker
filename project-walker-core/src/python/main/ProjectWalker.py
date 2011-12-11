@@ -211,7 +211,8 @@ class CheckerStatus:
     def isSuccessful (self):
         return not self.check_result
 
-"""Checker parent class with life cycle methods. To actual checkers need to sub-class
+class Checker (Visitor):
+    """Checker parent class with life cycle methods. To actual checkers need to sub-class
 this class with the actual life cycle methods implemented. At least _eval_ should be
 implemented.
 
@@ -222,7 +223,6 @@ Life cycle methods:
 * evalOnSubTreeEnd - called when all children of current node are processed
 
 * evalOnEnd - called when walking of the tree is finished"""
-class Checker (Visitor):
     def __init__ (self, name, vars, config):
         Visitor.__init__ (self)
         self.name = name
