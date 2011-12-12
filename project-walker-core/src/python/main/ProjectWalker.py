@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import os
 import logging
 
@@ -227,9 +228,17 @@ class ProjectStructureTreeBuilder(TreeBuilder):
 
 class CheckerStatus:
 
-    def __init__(self, checker_name, check_result):
+    def __init__(
+        self,
+        checker_name,
+        check_result,
+        checked_count=0,
+        failed_count=0,
+        ):
         self.checker_name = checker_name
         self.check_result = check_result
+        self.checked_count = checked_count
+        self.failed_count = failed_count
 
     def isSuccessful(self):
         return not self.check_result
@@ -255,9 +264,12 @@ Life cycle methods:
         vars,
         config,
         ):
+
         Visitor.__init__(self)
         self.name = name
         self.check_result = []
+        self.checked_count = 0
+        self.failed_count = 0
 
         # read-only!
 
@@ -286,7 +298,9 @@ Life cycle methods:
     @report_info
     def visit(self, node):
         result = self.eval(node)
+        self.checked_count = self.checked_count + 1
         if result:
+            self.failed_count = self.failed_count + 1
             self.check_result.append(result)
 
     @report_info
@@ -305,7 +319,8 @@ Life cycle methods:
         self.check_result.append((self.current_context, result))
 
     def getStatus(self):
-        return CheckerStatus(self.name, self.check_result)
+        return CheckerStatus(self.name, self.check_result,
+                             self.checked_count, self.failed_count)
 
     def interpolateNode(self, node):
         return interpol(node.file_attrs, self.config)

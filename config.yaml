@@ -4,13 +4,13 @@ vars:
 rules:
     - FileExistsChecker:
         requiredFiles:
-            - 'project-walker-core3'
+            - 'interpol.py'
     - FileExistsChecker:
         count: 2
         requiredFiles:
             - '%{project_path}/project-walker-core1'
             - '/project-walker-core2'
-            - 'interpol.py'
+            - 'project-walker-core3'
     - FileContainsChecker:
         matches: ['*.py', '*.md']
         contains: ["Copyright %authors"]

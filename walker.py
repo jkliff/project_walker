@@ -11,10 +11,10 @@ import Checkers
 import argparse
 
 from yaml import load, dump
-from string import ljust
-from itertools import groupby
+from string import ljust, rjust
 
 CHECKER_STATUS_PADDING = 40
+COUNTS_PADDING = 8
 
 
 def red(string):
@@ -31,16 +31,39 @@ def load_project(project):
 
 
 def printStatus(name, status, fullStatus=None):
-    if isSuccessful(status):
+    failed_check_count = 0
+    check_count = 0
+    short_status = ''
+    long_status = ''
+
+    for s in status:
+        if not s.isSuccessful():
+            failed_check_count = failed_check_count + 1
+        check_count = check_count + 1
+
+        if fullStatus:
+            messages = []
+            for (c, m) in s.check_result:
+                messages.append('  * ' + m)
+            long_status = '\n'.join(messages)
+
+    if failed_check_count == 0:
         ok_or_fail = green('OK')
     else:
         ok_or_fail = red('FAILED')
-    print '{}[{}]'.format(ljust(str(name), CHECKER_STATUS_PADDING),
-                          ok_or_fail)
+
+    if check_count == 1:
+        counts = ''
+    else:
+        counts = '{}/{}'.format(failed_check_count, check_count)
+
+    short_status = '{} {} [{}]'.format(ljust(str(name),
+            CHECKER_STATUS_PADDING), rjust(counts, COUNTS_PADDING),
+            ok_or_fail)
+
+    print short_status
     if fullStatus:
-        for s in status:
-            for (c, m) in s.check_result:
-                print '  * ' + m
+        print long_status
 
 
 def isSuccessful(status):
