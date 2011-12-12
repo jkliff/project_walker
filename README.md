@@ -13,6 +13,9 @@ Check a project:
 
     ./walker --config [CONFIG] [PROJECT DIR]
 
+If no config file is used one of the following config files is tried in the
+current directory: .walkerrc, walker.conf, walker.yaml.
+
 Run tests
 
     ./walker test

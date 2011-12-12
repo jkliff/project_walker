@@ -15,6 +15,7 @@ from string import ljust, rjust
 
 CHECKER_STATUS_PADDING = 40
 COUNTS_PADDING = 8
+CONFIG_DEFAULT_NAMES = ['.walkerrc', 'walker.conf', 'walker.yaml']
 
 
 def red(string):
@@ -90,6 +91,25 @@ def groupStatus(status):
     return grouped
 
 
+def openConfig(file=None):
+    h = None
+    try:
+        if file:
+            h = open(file, 'r')
+        else:
+            for f in CONFIG_DEFAULT_NAMES:
+                try:
+                    h = open(f, 'r')
+                    if h:
+                        break
+                except IOError:
+                    pass
+    except IOError:
+        pass
+
+    return h
+
+
 parser = \
     argparse.ArgumentParser(description='Checks a project with a set of rules.'
                             )
@@ -101,7 +121,13 @@ parser.add_argument('-f', '--full-report', action='store_true',
 parser.add_argument('project', metavar='P', help='project to check')
 args = parser.parse_args()
 
-config = load(open(args.config, 'r'))
+conf_h = openConfig(args.config)
+if not conf_h:
+    if args.config:
+        sys.exit('Could not open given config file [{}]!'.format(args.config))
+    else:
+        sys.exit('Could not open any of the default config files! {}'.format(CONFIG_DEFAULT_NAMES))
+config = load(conf_h)
 
 if 'vars' not in config:
     config['vars'] = {}
