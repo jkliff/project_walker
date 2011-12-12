@@ -61,6 +61,11 @@ class FileContainsChecker(ProjectWalker.Checker):
                                fnmatch.fnmatch(f.file_attrs['file_name'
                                ], match))
 
+        if 'caseSensitive' not in config or config['caseSensitive'].tolower() == 'true':
+            self.caseSensitive = 0
+        else:
+            self.caseSensitive = re.IGNORECASE
+
     def eval(self, node):
         current_config = self.interpolateNode(node)
         fpath = node.file_attrs['full_path']
@@ -73,7 +78,7 @@ class FileContainsChecker(ProjectWalker.Checker):
 
         for c in contains_config:
             contains[c] = {}
-            contains[c]['re'] = re.compile(c)
+            contains[c]['re'] = re.compile(c, self.caseSensitive)
             contains[c]['found'] = False
         try:
             f = open(fpath, 'r')

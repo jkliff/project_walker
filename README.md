@@ -114,6 +114,8 @@ Checks whether files in _matches_ contain the strings in _contains_. The
 contains option supports interpolation. Both matches, and contains support
 lists or plain strings.
 
+Setting the _caseSensitive_ option to _false_ turns off case sensitive matching.
+
 Development
 -----------
 
