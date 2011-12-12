@@ -1,6 +1,7 @@
 #! /bin/sh
+DIR=$(dirname $0)
 if [[ $1 = 'test' ]]; then
-    PYTHONPATH=project-walker-core/src/python/main nosetests-2.7 -w project-walker-core/src/python/test
+    PYTHONPATH=$DIR/project-walker-core/src/python/main nosetests-2.7 -w $DIR/project-walker-core/src/python/test
 else
-    PYTHONPATH=project-walker-core/src/python/main python2.7 ./walker.py $@
+    PYTHONPATH=$DIR/project-walker-core/src/python/main python2.7 $DIR/walker.py $@
 fi

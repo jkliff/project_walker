@@ -11,10 +11,11 @@ How to run
 
 Check a project:
 
-    ./walker --config [CONFIG] [PROJECT DIR]
+    ./walker
 
-If no config file is used one of the following config files is tried in the
-current directory: .walkerrc, walker.conf, walker.yaml.
+In this case it will look for a file named _walker.conf_ in the project
+directory. There are options to set different config files and project
+directories.
 
 Run tests
 

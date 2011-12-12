@@ -15,7 +15,7 @@ from string import ljust, rjust
 
 CHECKER_STATUS_PADDING = 40
 COUNTS_PADDING = 8
-CONFIG_DEFAULT_NAMES = ['.walkerrc', 'walker.conf', 'walker.yaml']
+CONFIG_DEFAULT_NAME = 'walker.conf'
 
 
 def red(string):
@@ -91,59 +91,53 @@ def groupStatus(status):
     return grouped
 
 
-def openConfig(file=None):
-    h = None
-    try:
-        if file:
-            h = open(file, 'r')
-        else:
-            for f in CONFIG_DEFAULT_NAMES:
-                try:
-                    h = open(f, 'r')
-                    if h:
-                        break
-                except IOError:
-                    pass
-    except IOError:
-        pass
+def loadConfig(projectPath, configName):
+    config = None
+    with open(os.path.join(os.path.abspath(projectPath), configName),
+              'r') as f:
+        config = load(f)
 
-    return h
+    return config
 
 
-parser = \
-    argparse.ArgumentParser(description='Checks a project with a set of rules.'
-                            )
-parser.add_argument('-c', '--config', help='configuration file')
-parser.add_argument('-q', '--quiet', action='store_true',
-                    help='do not print anything')
-parser.add_argument('-f', '--full-report', action='store_true',
-                    help='prints full report')
-parser.add_argument('project', metavar='P', help='project to check')
-args = parser.parse_args()
+def main():
+    parser = \
+        argparse.ArgumentParser(description='Checks a project with a set of rules.'
+                                )
+    parser.add_argument('-p', '--project', default='.',
+                        help='project directory')
+    parser.add_argument('-c', '--config', default=CONFIG_DEFAULT_NAME,
+                        help='configuration file')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help='do not print anything')
+    parser.add_argument('-f', '--full-report', action='store_true',
+                        help='prints full report')
+    args = parser.parse_args()
 
-conf_h = openConfig(args.config)
-if not conf_h:
-    if args.config:
-        sys.exit('Could not open given config file [{}]!'.format(args.config))
-    else:
-        sys.exit('Could not open any of the default config files! {}'.format(CONFIG_DEFAULT_NAMES))
-config = load(conf_h)
+    config = loadConfig(args.project, args.config)
+    if not config:
+        sys.exit('Could not find config [{}] in project directory [{}]!'.format(args.config,
+                 args.project))
 
-if 'vars' not in config:
-    config['vars'] = {}
+    if 'vars' not in config:
+        config['vars'] = {}
 
-config['vars']['project_path'] = os.path.abspath(args.project)
-config['vars']['project'] = \
-    os.path.basename(os.path.abspath(args.project))
+    config['vars']['project_path'] = os.path.abspath(args.project)
+    config['vars']['project'] = \
+        os.path.basename(os.path.abspath(args.project))
 
-checker = \
-    ProjectWalker.ProjectCheckEvaluator(load_project(args.project))
-checkers = createCheckers(config['rules'], config['vars'])
-status = checker.walk(checkers)
+    checker = \
+        ProjectWalker.ProjectCheckEvaluator(load_project(args.project))
+    checkers = createCheckers(config['rules'], config['vars'])
+    status = checker.walk(checkers)
 
-if not args.quiet:
-    for (n, s) in groupStatus(status).items():
-        printStatus(n, s, args.full_report)
+    if not args.quiet:
+        for (n, s) in groupStatus(status).items():
+            printStatus(n, s, args.full_report)
 
-if not isSuccessful(status):
-    sys.exit('')
+    if not isSuccessful(status):
+        sys.exit('')
+
+
+if __name__ == '__main__':
+    main()
