@@ -61,7 +61,7 @@ class FileContainsChecker(ProjectWalker.Checker):
                                fnmatch.fnmatch(f.file_attrs['file_name'
                                ], match))
 
-        if 'caseSensitive' not in config or config['caseSensitive'].tolower() == 'true':
+        if 'caseSensitive' not in config or config['caseSensitive'] == 'true':
             self.caseSensitive = 0
         else:
             self.caseSensitive = re.IGNORECASE
