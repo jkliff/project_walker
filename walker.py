@@ -15,7 +15,7 @@ from string import ljust, rjust
 
 CHECKER_STATUS_PADDING = 40
 COUNTS_PADDING = 8
-CONFIG_DEFAULT_NAME = 'walker.conf'
+DEFAULT_CONFIG_NAME = 'walker.conf'
 
 
 def red(string):
@@ -93,8 +93,13 @@ def groupStatus(status):
 
 def loadConfig(projectPath, configName):
     config = None
-    with open(os.path.join(os.path.abspath(projectPath), configName),
-              'r') as f:
+    if configName:
+        path = configName
+    else:
+        path = os.path.join(os.path.abspath(projectPath),
+                            DEFAULT_CONFIG_NAME)
+
+    with open(path, 'r') as f:
         config = load(f)
 
     return config
@@ -106,8 +111,7 @@ def main():
                                 )
     parser.add_argument('-p', '--project', default='.',
                         help='project directory')
-    parser.add_argument('-c', '--config', default=CONFIG_DEFAULT_NAME,
-                        help='configuration file')
+    parser.add_argument('-c', '--config', help='configuration file')
     parser.add_argument('-q', '--quiet', action='store_true',
                         help='do not print anything')
     parser.add_argument('-f', '--full-report', action='store_true',
