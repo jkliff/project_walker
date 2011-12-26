@@ -73,10 +73,18 @@ def isSuccessful(status):
 
 def createCheckers(rules, vars):
     checkers = []
-    for rule in rules:
-        for (rule_name, rule_config) in rule.iteritems():
+    for (rule_name, rule_config) in rules.iteritems():
+        if type(rule_config) == dict:
+            rc = [rule_config]
+        elif type(rule_config) == list:
+            rc = rule_config
+        else:
+            sys.exit('Invalid config [{}]'.format(rule_name))
+
+        for ct in rc:
             c = getattr(Checkers, rule_name)
-            checkers.append(c(vars, rule_config))
+            checkers.append(c(vars, ct))
+
     return checkers
 
 
