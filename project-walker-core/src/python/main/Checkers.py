@@ -51,7 +51,7 @@ class FileContainsChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars,
                 config)
-        for match in self.getVal('matches'):
+        for match in self.getVal('files'):
             self.addAcceptRule(lambda f: \
                                fnmatch.fnmatch(f.file_attrs['file_name'
                                ], match))
@@ -84,4 +84,22 @@ class FileContainsChecker(ProjectWalker.Checker):
         except IOError:
             return self.addResult('Could not open file [{}]'.format(fpath))
 
+class FileNameChecker(ProjectWalker.Checker):
 
+    def __init__(self, vars, config):
+        ProjectWalker.Checker.__init__(self, self.__class__, vars,
+                config)
+
+        for match in self.getVal('files'):
+            self.addAcceptRule(lambda f: \
+                               fnmatch.fnmatch(f.file_attrs['file_name'
+                               ], match))
+
+        self.p = self.getVal('matches')[0]
+        self.r = re.compile(self.p)
+
+    def eval(self, node):
+        result = []
+        n = node.file_attrs['file_name']
+        if not self.r.match(n):
+            self.addResult('File [{}] does not match [{}]!'.format(n, self.p))
