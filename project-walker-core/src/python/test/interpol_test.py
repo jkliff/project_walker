@@ -12,6 +12,7 @@ class TestInterpol(unittest.TestCase):
         'that': 'bar',
         'other': 'fooquux',
         'other_joo': 'FOOQUUX',
+        'some': 'foo-bar'
         }
 
     def test_stringWithOneValue(self):
@@ -61,11 +62,27 @@ class TestInterpol(unittest.TestCase):
 
     def test_stringReplacement1(self):
         self.assertEqual('FOOquuxbar', interpol(self.v,
-                         '%{other:foo:FOO}bar'))
+                         '%{other#foo#FOO}bar'))
 
     def test_stringReplacement2(self):
-        self.assertEqual('quuxbar', interpol(self.v, '%{other:foo:}bar'
+        self.assertEqual('quuxbar', interpol(self.v, '%{other#foo#}bar'
                          ))
+
+    def test_regexReplacement1(self):
+        self.assertEqual('fXXqXXxbar', interpol(self.v,
+                         '%{other#[ou]#X}bar'))
+
+    def test_regexReplacement2(self):
+        self.assertEqual('XXXXXXXbar', interpol(self.v,
+                         '%{other#\w#X}bar'))
+
+    def test_regexMatchReturn1(self):
+        self.assertEqual('foobar', interpol(self.v,
+                         '%{some#[^-]+}bar'))
+
+#    def test_regexMatchReturn2(self):
+#        self.assertEqual('barbar', interpol(self.v,
+#                         '%{some#-(.+)$}bar'))
 
 
 if __name__ == '__main__':

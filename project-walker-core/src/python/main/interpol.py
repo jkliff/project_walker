@@ -10,13 +10,24 @@ def _interpol_str(var, string):
     for k in keys:
         v = var[k]
 
-        # %identifier:foo:bar - replace foo to bar in string
+        # %identifier#foo#bar - replace foo to bar in string
 
-        r = re.compile('%\{' + k + ':([a-zA-Z]+):([^}]*)\}')
+        r = re.compile('%\{' + k + '#([^#]+)#([^}]*)\}')
         m = r.match(string)
         if m:
             nv = re.sub(m.group(1), m.group(2), v)
             string = r.sub(nv, string)
+
+        # %identifier#foo - returns the match
+
+        r = re.compile('%\{' + k + '#([^}]+)\}')
+        m = r.match(string)
+        if m:
+            rr = re.compile(m.group(1))
+            mm = rr.match(var[k])
+            if mm:
+                nv = mm.group(0)
+                string = r.sub(nv, string)
 
         # %identifier:2:5
 
@@ -65,7 +76,7 @@ def interpol(var, v):
        * %{identifier} - for embedding in strings
        * %identifier:2 - from second character on
        * %identifier:2:3 - from second character two third
-       * %{identifier:foo:bar} - replace foo to bar in string
+       * %{identifier#foo#bar} - replace foo to bar in string
 
        All identifiers support curly braces where the pattern is embedded in another string.
     """
