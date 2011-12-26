@@ -16,12 +16,11 @@ class FileExistsChecker(ProjectWalker.Checker):
                 config)
 
         self.fileCount = {}
-        self.requiredCount = 1
 
-        for f in config['requiredFiles']:
+        for f in self.getVal('requiredFiles'):
             self.fileCount[self.interpolatePathExpression(f)] = 0
-        if 'count' in config:
-            self.requiredCount = config['count']
+
+        self.requiredCount = self.getVal('count', 1)[0]
 
     def eval(self, node):
         result = []
@@ -52,11 +51,7 @@ class FileContainsChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars,
                 config)
-        if type(config['matches']) == list:
-            matches = config['matches']
-        else:
-            matches = [config['matches']]
-        for match in matches:
+        for match in self.getVal('matches'):
             self.addAcceptRule(lambda f: \
                                fnmatch.fnmatch(f.file_attrs['file_name'
                                ], match))
@@ -71,12 +66,7 @@ class FileContainsChecker(ProjectWalker.Checker):
         fpath = node.file_attrs['full_path']
         contains = {}
 
-        if type(current_config['contains']) == list:
-            contains_config = current_config['contains']
-        else:
-            contains_config = [current_config['contains']]
-
-        for c in contains_config:
+        for c in self.getVal('contains'):
             contains[c] = {}
             contains[c]['re'] = re.compile(c, self.caseSensitive)
             contains[c]['found'] = False

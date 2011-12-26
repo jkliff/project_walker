@@ -277,6 +277,21 @@ Life cycle methods:
         self.config = interpol(vars, config)
         self.current_context = None
 
+    def getVal(self, key, default=None):
+        res = []
+        if key in self.config:
+            val = self.config[key]
+            if type(val) == list:
+                res = val
+            else:
+                res.append(val)
+        elif default:
+            res.append(default)
+        else:
+            sys.exit('Could not find config key [{}]!'.format(key))
+
+        return res
+
     def eval(self, node):
         """Actual rule evaluation. Should return None if successful otherwise a meaningful
            error message. This method is called on each node."""
