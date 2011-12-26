@@ -37,7 +37,7 @@ Configuration syntax is in [YAML](http://en.wikipedia.org/wiki/YAML).
                 - 'project-walker-core3'
                 - 'interpol.py'
         - FileContainsChecker:
-            matches: '*.py'
+            files: '*.py'
             contains: ["Copyright %authors"]
 
 ### Rules
@@ -45,7 +45,7 @@ Configuration syntax is in [YAML](http://en.wikipedia.org/wiki/YAML).
 In this section one can list the rules, which are used to check a project. It
 begins with the name of a check. Each checker has different configuration
 options, and each supports interpolation on different options. Generally it
-can be sad that the _matches_ option does not support interpolation just
+can be sad that the _files_ option does not support interpolation just
 globbing expressions.
 
 ### Vars
@@ -115,6 +115,10 @@ contains option supports interpolation. Both matches, and contains support
 lists or plain strings.
 
 Setting the _caseSensitive_ option to _false_ turns off case sensitive matching.
+
+## FileNameChecker
+
+Checkes whether the file name of _files_  matches pattern in _matches_.
 
 Development
 -----------
