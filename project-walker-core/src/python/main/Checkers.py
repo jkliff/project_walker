@@ -19,7 +19,7 @@ class FileExistsChecker(ProjectWalker.Checker):
         for f in self.getVal('requiredFiles'):
             self.fileCount[self.interpolatePathExpression(f)] = 0
 
-        self.requiredCount = self.getVal('count', 1)[0]
+        self.requiredCount = self.getVal('count', -1)[0]
 
     def eval(self, node):
         result = []
@@ -37,12 +37,10 @@ class FileExistsChecker(ProjectWalker.Checker):
 
     def evalOnEnd(self):
         for (f, c) in self.fileCount.iteritems():
-            if c != self.requiredCount:
-                if self.requiredCount == 1:
-                    self.addResult('Could not find file [{}]'.format(f))
-                else:
-                    self.addResult('Found file [{}] {} time(s), required {}.'.format(f, c, self.requiredCount))
-
+            if c < 1 and self.requiredCount == -1:
+                self.addResult('Could not find file [{}]'.format(f))
+            elif c != self.requiredCount and self.requiredCount != -1:
+                self.addResult('Found file [{}] {} time(s), required {}.'.format(f, c, self.requiredCount))
 
 class FileContainsChecker(ProjectWalker.Checker):
 

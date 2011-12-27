@@ -37,13 +37,13 @@ def printStatus(name, status, fullStatus=None):
     short_status = ''
     long_status = ''
 
+    messages = []
     for s in status:
         if not s.isSuccessful():
             failed_check_count = failed_check_count + 1
         check_count = check_count + 1
 
         if fullStatus:
-            messages = []
             for (c, m) in s.check_result:
                 messages.append('  * ' + m)
             long_status = '\n'.join(messages)
