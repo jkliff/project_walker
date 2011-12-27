@@ -94,6 +94,7 @@ variables:
  * full_path - full path with file name
 
  * type - d / f depending whether file is a directory or not
+
 Checks
 ------
 
@@ -132,6 +133,11 @@ Checks whether the properties of _files_ holds true to the settings:
   * whitespace - space
   * trailingWhitespace - false
   * lineLength - 120
+
+File Inclusion / Exclusion
+--------------------------
+
+Files can be included with _files_ excluded with _excludeFiles_.
 
 Development
 -----------

@@ -5,7 +5,7 @@ from interpol import interpol
 import unittest
 
 
-class TestInterpol(unittest.TestCase):
+class InterpolTest(unittest.TestCase):
 
     v = {
         'this': 'foo',

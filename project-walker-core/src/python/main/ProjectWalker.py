@@ -5,6 +5,8 @@ import os
 import logging
 import sys
 
+import GlobMatch
+
 from interpol import interpol
 
 _t = lambda m: logging.debug(m)
@@ -278,8 +280,23 @@ Life cycle methods:
         self.config = interpol(vars, config)
         self.current_context = None
 
+        self.__setUpIncludesExcludes()
+
     def __cleanKey(self, key):
         return key.lower().replace('-', '').replace('_', '')
+
+    def __setUpIncludesExcludes(self):
+        m = self.getVal('files', True)
+        if m != [True]:
+            for match in m:
+                gb = GlobMatch.prepare(match)
+                self.addAcceptRule(lambda f: gb.match(f.file_attrs['file_name']))
+
+        m = self.getVal('excludeFiles', True)
+        if m != [True]:
+            for match in m:
+                gb = GlobMatch.prepare(match)
+                self.addDenyRule(lambda f: gb.match(f.file_attrs['file_name']))
 
     def getVal(self, key, default=None):
         """Gets a value from the configuration. It returns everything in a list. If a value is not found and a default

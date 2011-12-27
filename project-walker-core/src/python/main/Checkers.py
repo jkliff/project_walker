@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import fnmatch
 import os.path
 import re
 
@@ -49,8 +48,6 @@ class FileContainsChecker(ProjectWalker.Checker):
 
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
-        for match in self.getVal('files'):
-            self.addAcceptRule(lambda f: fnmatch.fnmatch(f.file_attrs['file_name'], match))
 
         if 'caseSensitive' not in config or config['caseSensitive'] == 'true':
             self.caseSensitive = 0
@@ -85,9 +82,6 @@ class FileNameChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
 
-        for match in self.getVal('files'):
-            self.addAcceptRule(lambda f: fnmatch.fnmatch(f.file_attrs['file_name'], match))
-
         self.p = self.getVal('matches')[0]
         self.r = re.compile(self.p)
 
@@ -103,9 +97,6 @@ class FilePropertyChecker(ProjectWalker.Checker):
 
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
-
-        for match in self.getVal('files'):
-            self.addAcceptRule(lambda f: fnmatch.fnmatch(f.file_attrs['file_name'], match))
 
         self.encoding = self.getVal('encoding', 'utf8')[0]
         self.ending = self.getVal('lineEnding', 'unix')[0]
