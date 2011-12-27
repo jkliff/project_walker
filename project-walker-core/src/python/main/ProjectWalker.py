@@ -3,6 +3,7 @@
 
 import os
 import logging
+import sys
 
 from interpol import interpol
 
@@ -277,17 +278,36 @@ Life cycle methods:
         self.config = interpol(vars, config)
         self.current_context = None
 
+    def __cleanKey(self, key):
+        return key.lower().replace('-', '').replace('_', '')
+
     def getVal(self, key, default=None):
+        """Gets a value from the configuration. It returns everything in a list. If a value is not found and a default
+        is defined, then it is taken. If no default is defined an Exeption is thrown.
+
+        The method does longest token matching, so the key doe not have to be found exactly. If more than one value
+        matches for a key an exception is thrown.
+
+        The key are lower cased, - and _ characters are removed."""
+
+        ckey = self.__cleanKey(key)
         res = []
-        if key in self.config:
-            val = self.config[key]
-            if type(val) == list:
-                res = val
-            else:
-                res.append(val)
-        elif default:
+        found = False
+        for (k, v) in self.config.iteritems():
+            ck = self.__cleanKey(k)
+            if ckey.startswith(ck) and not found:
+                found = True
+                val = self.config[k]
+                if type(val) == list:
+                    res = val
+                else:
+                    res.append(val)
+            elif ckey.startswith(ck) and found:
+                sys.exit("Key [{}] is ambigous!".format(k))
+
+        if not found and default:
             res.append(default)
-        else:
+        elif not found:
             sys.exit('Could not find config key [{}]!'.format(key))
 
         return res

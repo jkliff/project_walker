@@ -40,6 +40,9 @@ Configuration syntax is in [YAML](http://en.wikipedia.org/wiki/YAML).
             files: '*.py'
             contains: ["Copyright %authors"]
 
+The keys of the config are longest token matched, case and the characters -_ are ignored.
+So one can write _f_ instead of _files_.
+
 ### Rules
 
 In this section one can list the rules, which are used to check a project. It
