@@ -307,6 +307,9 @@ Life cycle methods:
 
         The key are lower cased, - and _ characters are removed."""
 
+        if not self.config:
+            return []
+
         ckey = self.__cleanKey(key)
         res = []
         found = False
