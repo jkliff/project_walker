@@ -118,7 +118,17 @@ Setting the _caseSensitive_ option to _false_ turns off case sensitive matching.
 
 ## FileNameChecker
 
-Checkes whether the file name of _files_  matches pattern in _matches_.
+Checks whether the file name of _files_  matches pattern in _matches_.
+
+## FilePropertyChecker
+
+Checks whether the properties of _files_ holds true to the settings:
+
+  * encoding - utf8
+  * lineEnding - unix
+  * whitespace - space
+  * trailingWhitespace - false
+  * lineLength - 120
 
 Development
 -----------
