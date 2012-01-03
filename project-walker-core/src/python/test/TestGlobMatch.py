@@ -86,8 +86,5 @@ class GlobMatchTest(unittest.TestCase):
         self.assertTrue(gb.match('quux/bar/foo.py'))
         self.assertTrue(gb.match('quux/bar/foo.txt'))
 
-    def test_fail(self):
-        self.fail('bla')
-
 if __name__ == '__main__':
     unittest.main()
