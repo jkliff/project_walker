@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import re
 
 star_re = re.compile('(?<!\*)\*{1}(?!\*)')
@@ -10,6 +11,9 @@ cache = dict()
 def prepare(pattern):
     p = star_re.sub('[^\/]*', pattern)
     p = p.replace('.', '\.').replace('**', '.*').replace('?', '.')
+    if p.find('/') < 0 or p.find('\\') < 0:
+        p = '.*{}.*'.format(p)
+    print p
     if p in cache:
         return cache[p]
     else:

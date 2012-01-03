@@ -1,5 +1,8 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import GlobMatch
 import unittest
+
 
 class GlobMatchTest(unittest.TestCase):
 
@@ -16,8 +19,16 @@ class GlobMatchTest(unittest.TestCase):
         self.assertFalse(gb.match('foo.py'))
 
     def test_exactMatch(self):
-        gb = GlobMatch.prepare('foo.py')
-        self.assertTrue(gb.match('foo.py'))
+        gb = GlobMatch.prepare('/foo/bar.py')
+        self.assertTrue(gb.match('/foo/bar.py'))
+
+    def test_matchWithoutSlashMatchesStringEverywhere1(self):
+        gb = GlobMatch.prepare('bar.py')
+        self.assertTrue(gb.match('/foo/bar.py'))
+
+    def test_matchWithoutSlashMatchesStringEverywhere2(self):
+        gb = GlobMatch.prepare('bar.py')
+        self.assertTrue(gb.match('bar.py'))
 
     def test_AZMatch(self):
         gb = GlobMatch.prepare('[a-z]*.py')
@@ -53,16 +64,19 @@ class GlobMatchTest(unittest.TestCase):
 
     def test_TwoStars5(self):
         gb = GlobMatch.prepare('**/.git/**')
-        self.assertTrue(gb.match('/home/pele/dev/project_walker/.git/objects/18/f545826e02129f7a729e95a2f9ea37c9779c7a'))
+        self.assertTrue(gb.match('/home/pele/dev/project_walker/.git/objects/18/f545826e02129f7a729e95a2f9ea37c9779c7a'
+                        ))
 
     def test_TwoStars6(self):
         gb = GlobMatch.prepare('**/.git')
-        self.assertFalse(gb.match('/home/pele/dev/project_walker/.git/objects/18/f545826e02129f7a729e95a2f9ea37c9779c7a'))
+        self.assertFalse(gb.match('/home/pele/dev/project_walker/.git/objects/18/f545826e02129f7a729e95a2f9ea37c9779c7a'
+                         ))
 
     def test_Alternation(self):
         gb = GlobMatch.prepare('**/*.(py|txt)')
         self.assertTrue(gb.match('quux/bar/foo.py'))
         self.assertTrue(gb.match('quux/bar/foo.txt'))
+
 
 if __name__ == '__main__':
     unittest.main()
