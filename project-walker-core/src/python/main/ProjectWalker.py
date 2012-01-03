@@ -15,7 +15,6 @@ _i = lambda m: logging.info(m)
 _w = lambda m: logging.warn(m)
 _e = lambda m: logging.error(m)
 
-
 def report_debug(f):
 
     def w(*args, **kws):
@@ -48,11 +47,13 @@ class Visitor:
     def appliesTo(self, n):
         for predicate in self.accept_rules:
             if not predicate(n):
+                # print 'd ', n.file_attrs['full_path']
                 return False
 
         for predicate in self.deny_rules:
             if predicate(n):
                 return False
+
         return True
 
     @report_debug
@@ -290,13 +291,13 @@ Life cycle methods:
         if m != [True]:
             for match in m:
                 gb = GlobMatch.prepare(match)
-                self.addAcceptRule(lambda f: gb.match(f.file_attrs['file_name']))
+                self.addAcceptRule(lambda f: gb.match(f.file_attrs['full_path']))
 
         m = self.getVal('excludeFiles', True)
         if m != [True]:
             for match in m:
                 gb = GlobMatch.prepare(match)
-                self.addDenyRule(lambda f: gb.match(f.file_attrs['file_name']))
+                self.addDenyRule(lambda f: gb.match(f.file_attrs['full_path']))
 
     def getVal(self, key, default=None):
         """Gets a value from the configuration. It returns everything in a list. If a value is not found and a default
