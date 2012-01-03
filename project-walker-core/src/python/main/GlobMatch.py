@@ -10,17 +10,17 @@ cache = dict()
 
 
 def prepare(pattern):
-    m = fname_star_re.match(pattern)
-    if m:
-        p = '.*\.{}'.format(m.group(1))
-    else:
-        p = star_re.sub('[^\/]*', pattern)
-        p = p.replace('.', '\.').replace('**', '.*').replace('?', '.')
-        if p.find('/') < 0 or p.find('\\') < 0:
-            p = '.*{}.*'.format(p)
-    if p in cache:
+    if pattern in cache:
         return cache[p]
     else:
+        m = fname_star_re.match(pattern)
+        if m:
+            p = '.*\.{}'.format(m.group(1))
+        else:
+            p = star_re.sub('[^\/]*', pattern)
+            p = p.replace('.', '\.').replace('**', '.*').replace('?', '.')
+            if p.find('/') < 0 or p.find('\\') < 0:
+                p = '.*{}.*'.format(p)
         gb = GlobMatch(p)
         cache[p] = gb
         return gb
