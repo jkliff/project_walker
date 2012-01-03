@@ -42,6 +42,7 @@ class FileExistsChecker(ProjectWalker.Checker):
             elif c != self.requiredCount and self.requiredCount != -1:
                 self.addResult('Found file [{}] {} time(s), required {}.'.format(f, c, self.requiredCount))
 
+
 class FileContainsChecker(ProjectWalker.Checker):
 
     def __init__(self, vars, config):
@@ -116,6 +117,8 @@ class FilePropertyChecker(ProjectWalker.Checker):
         self.trr = re.compile('\S*[ \t]+$')
 
         self.wrongEndingFound = False
+
+        self.addDenyRule(lambda f: f.file_attrs['type'] == 'd')
 
     def eval(self, node):
         path = node.file_attrs['full_path']
