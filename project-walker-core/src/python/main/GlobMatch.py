@@ -1,8 +1,11 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import re
 
 star_re = re.compile('(?<!\*)\*{1}(?!\*)')
 
 cache = dict()
+
 
 def prepare(pattern):
     p = star_re.sub('[^\/]*', pattern)
@@ -14,6 +17,7 @@ def prepare(pattern):
         cache[p] = gb
         return gb
 
+
 class GlobMatch:
 
     def __init__(self, p):
@@ -22,3 +26,5 @@ class GlobMatch:
 
     def match(self, name):
         return self.r.match(name) != None
+
+

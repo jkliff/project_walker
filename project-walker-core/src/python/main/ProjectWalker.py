@@ -15,6 +15,7 @@ _i = lambda m: logging.info(m)
 _w = lambda m: logging.warn(m)
 _e = lambda m: logging.error(m)
 
+
 def report_debug(f):
 
     def w(*args, **kws):
@@ -47,7 +48,9 @@ class Visitor:
     def appliesTo(self, n):
         for predicate in self.accept_rules:
             if not predicate(n):
+
                 # print 'd ', n.file_attrs['full_path']
+
                 return False
 
         for predicate in self.deny_rules:
@@ -231,10 +234,13 @@ class ProjectStructureTreeBuilder(TreeBuilder):
 
 
 class CheckerException(Exception):
-     def __init__(self, value):
-         self.value = value
-     def __str__(self):
-         return repr(self.value)
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
 
 class CheckerStatus:
 
@@ -245,6 +251,7 @@ class CheckerStatus:
         checked_count=0,
         failed_count=0,
         ):
+
         self.checker_name = checker_name
         self.check_result = check_result
         self.checked_count = checked_count
@@ -330,7 +337,7 @@ Life cycle methods:
                 else:
                     res.append(val)
             elif ckey.startswith(ck) and found:
-                raise CheckerException("Key [{}] is ambigous!".format(k))
+                raise CheckerException('Key [{}] is ambigous!'.format(k))
 
         if not found and default:
             res.append(default)
@@ -381,8 +388,7 @@ Life cycle methods:
         self.check_result.append((self.current_context, result))
 
     def getStatus(self):
-        return CheckerStatus(self.name, self.check_result,
-                             self.checked_count, self.failed_count)
+        return CheckerStatus(self.name, self.check_result, self.checked_count, self.failed_count)
 
     def interpolateNode(self, node):
         return interpol(node.file_attrs, self.config)

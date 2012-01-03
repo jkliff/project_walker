@@ -3,11 +3,15 @@
 
 import re
 
+
 class InterpolException(Exception):
-     def __init__(self, value):
-         self.value = value
-     def __str__(self):
-         return repr(self.value)
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
 
 def _interpol_str(var, string):
     keys = var.keys()

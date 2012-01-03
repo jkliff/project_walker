@@ -58,9 +58,8 @@ def printStatus(name, status, fullStatus=None):
     else:
         counts = '{}/{}'.format(failed_check_count, check_count)
 
-    short_status = '{} {} [{}]'.format(ljust(str(name),
-            CHECKER_STATUS_PADDING), rjust(counts, COUNTS_PADDING),
-            ok_or_fail)
+    short_status = '{} {} [{}]'.format(ljust(str(name), CHECKER_STATUS_PADDING), rjust(counts, COUNTS_PADDING),
+                                       ok_or_fail)
 
     print short_status
     if fullStatus:
@@ -104,8 +103,7 @@ def loadConfig(projectPath, configName):
     if configName:
         path = configName
     else:
-        path = os.path.join(os.path.abspath(projectPath),
-                            DEFAULT_CONFIG_NAME)
+        path = os.path.join(os.path.abspath(projectPath), DEFAULT_CONFIG_NAME)
 
     with open(path, 'r') as f:
         config = load(f)
@@ -114,32 +112,24 @@ def loadConfig(projectPath, configName):
 
 
 def main():
-    parser = \
-        argparse.ArgumentParser(description='Checks a project with a set of rules.'
-                                )
-    parser.add_argument('-p', '--project', default='.',
-                        help='project directory')
+    parser = argparse.ArgumentParser(description='Checks a project with a set of rules.')
+    parser.add_argument('-p', '--project', default='.', help='project directory')
     parser.add_argument('-c', '--config', help='configuration file')
-    parser.add_argument('-q', '--quiet', action='store_true',
-                        help='do not print anything')
-    parser.add_argument('-f', '--full-report', action='store_true',
-                        help='prints full report')
+    parser.add_argument('-q', '--quiet', action='store_true', help='do not print anything')
+    parser.add_argument('-f', '--full-report', action='store_true', help='prints full report')
     args = parser.parse_args()
 
     config = loadConfig(args.project, args.config)
     if not config:
-        sys.exit('Could not find config [{}] in project directory [{}]!'.format(args.config,
-                 args.project))
+        sys.exit('Could not find config [{}] in project directory [{}]!'.format(args.config, args.project))
 
     if 'vars' not in config:
         config['vars'] = {}
 
     config['vars']['project_path'] = os.path.abspath(args.project)
-    config['vars']['project'] = \
-        os.path.basename(os.path.abspath(args.project))
+    config['vars']['project'] = os.path.basename(os.path.abspath(args.project))
 
-    checker = \
-        ProjectWalker.ProjectCheckEvaluator(load_project(args.project))
+    checker = ProjectWalker.ProjectCheckEvaluator(load_project(args.project))
     checkers = createCheckers(config['rules'], config['vars'])
     status = checker.walk(checkers)
 
