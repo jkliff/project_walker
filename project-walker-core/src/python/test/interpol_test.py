@@ -80,9 +80,9 @@ class InterpolTest(unittest.TestCase):
         self.assertEqual('foobar', interpol(self.v,
                          '%{some#[^-]+}bar'))
 
-#    def test_regexMatchReturn2(self):
-#        self.assertEqual('barbar', interpol(self.v,
-#                         '%{some#-(.+)$}bar'))
+    def test_regexMatchReturn2(self):
+        self.assertEqual('barbar', interpol(self.v,
+                         '%{some#[^-]+-([^-]+)$}bar'))
 
 
 if __name__ == '__main__':

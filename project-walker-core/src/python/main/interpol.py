@@ -3,6 +3,11 @@
 
 import re
 
+class InterpolException(Exception):
+     def __init__(self, value):
+         self.value = value
+     def __str__(self):
+         return repr(self.value)
 
 def _interpol_str(var, string):
     keys = var.keys()
@@ -26,8 +31,13 @@ def _interpol_str(var, string):
             rr = re.compile(m.group(1))
             mm = rr.match(var[k])
             if mm:
-                nv = mm.group(0)
+                if mm.groups():
+                    nv = mm.group(1)
+                else:
+                    nv = mm.group(0)
                 string = r.sub(nv, string)
+            else:
+                raise InterpolException('Regex [{}] does not match [{}]!'.format(m.group(1), var[k]))
 
         # %identifier:2:5
 
