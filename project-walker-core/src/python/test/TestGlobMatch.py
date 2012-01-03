@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import GlobMatch
 import unittest
 
@@ -29,6 +30,14 @@ class GlobMatchTest(unittest.TestCase):
     def test_matchWithoutSlashMatchesStringEverywhere2(self):
         gb = GlobMatch.prepare('bar.py')
         self.assertTrue(gb.match('bar.py'))
+
+    def test_matchWithoutSlashMatchesStringEverywhere3(self):
+        gb = GlobMatch.prepare('.git')
+        self.assertTrue(gb.match('/home/pele/dev/project_walker/.git/logs/refs/heads/walk'))
+
+    def test_matchWithoutSlashMatchesStringEverywhere4(self):
+        gb = GlobMatch.prepare('*.pyc')
+        self.assertTrue(gb.match('/home/pele/dev/project_walker/project-walker-core/src/python/test/TestGlobMatch.pyc'))
 
     def test_AZMatch(self):
         gb = GlobMatch.prepare('[a-z]*.py')

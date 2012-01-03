@@ -300,17 +300,24 @@ Life cycle methods:
         return key.lower().replace('-', '').replace('_', '')
 
     def __setUpIncludesExcludes(self):
+
+        def getMatcher(match):
+
+            def mf(f):
+                gb = GlobMatch.prepare(match)
+                return gb.match(f.file_attrs['full_path'])
+
+            return mf
+
         m = self.getVal('files', True)
         if m != [True]:
             for match in m:
-                gb = GlobMatch.prepare(match)
-                self.addAcceptRule(lambda f: gb.match(f.file_attrs['full_path']))
+                self.addAcceptRule(getMatcher(match))
 
         m = self.getVal('excludeFiles', True)
         if m != [True]:
             for match in m:
-                gb = GlobMatch.prepare(match)
-                self.addDenyRule(lambda f: gb.match(f.file_attrs['full_path']))
+                self.addDenyRule(getMatcher(match))
 
     def getVal(self, key, default=None):
         """Gets a value from the configuration. It returns everything in a list. If a value is not found and a default

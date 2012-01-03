@@ -4,16 +4,20 @@
 import re
 
 star_re = re.compile('(?<!\*)\*{1}(?!\*)')
+fname_star_re = re.compile('\*\.([^/\.]+)$')
 
 cache = dict()
 
 
 def prepare(pattern):
-    p = star_re.sub('[^\/]*', pattern)
-    p = p.replace('.', '\.').replace('**', '.*').replace('?', '.')
-    if p.find('/') < 0 or p.find('\\') < 0:
-        p = '.*{}.*'.format(p)
-    print p
+    m = fname_star_re.match(pattern)
+    if m:
+        p = '.*\.{}'.format(m.group(1))
+    else:
+        p = star_re.sub('[^\/]*', pattern)
+        p = p.replace('.', '\.').replace('**', '.*').replace('?', '.')
+        if p.find('/') < 0 or p.find('\\') < 0:
+            p = '.*{}.*'.format(p)
     if p in cache:
         return cache[p]
     else:
