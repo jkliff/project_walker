@@ -230,6 +230,12 @@ class ProjectStructureTreeBuilder(TreeBuilder):
         return t
 
 
+class CheckerException(Exception):
+     def __init__(self, value):
+         self.value = value
+     def __str__(self):
+         return repr(self.value)
+
 class CheckerStatus:
 
     def __init__(
@@ -324,12 +330,12 @@ Life cycle methods:
                 else:
                     res.append(val)
             elif ckey.startswith(ck) and found:
-                sys.exit("Key [{}] is ambigous!".format(k))
+                raise CheckerException("Key [{}] is ambigous!".format(k))
 
         if not found and default:
             res.append(default)
         elif not found:
-            sys.exit('Could not find config key [{}]!'.format(key))
+            raise CheckerException('Could not find config key [{}]!'.format(key))
 
         return res
 
