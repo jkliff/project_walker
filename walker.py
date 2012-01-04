@@ -17,13 +17,20 @@ CHECKER_STATUS_PADDING = 40
 COUNTS_PADDING = 8
 DEFAULT_CONFIG_NAME = 'walker.conf'
 
+isTerminal = sys.stdout.isatty()
 
 def red(string):
-    return '\033[91m' + string + '\033[0m'
+    if isTerminal:
+        return '\033[91m' + string + '\033[0m'
+    else:
+        return string
 
 
 def green(string):
-    return '\033[92m' + string + '\033[0m'
+    if isTerminal:
+        return '\033[92m' + string + '\033[0m'
+    else:
+        return string
 
 
 def load_project(project):
