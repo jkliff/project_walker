@@ -136,6 +136,16 @@ Checks whether the properties of _files_ holds true to the settings:
   * trailingWhitespace - false
   * lineLength - 120
 
+## ExternalChecker
+
+Checks _files_ with _command_. The command has to be written in with *full path*.
+The command supports interpolation. The check fails if the command returns with a
+non-zero return code, the messages from the command are printed in the full report.
+
+    ExternalChecker:
+          files: '*.xml'
+          command: /usr/bin/xmllint %full_path
+
 File Inclusion / Exclusion
 --------------------------
 

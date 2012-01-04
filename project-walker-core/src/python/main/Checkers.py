@@ -3,11 +3,35 @@
 
 import os.path
 import re
+import subprocess
 
 import ProjectWalker
 import GlobMatch
+from interpol import interpol
 
-# should handle glob expressions in paths
+
+class ExternalChecker(ProjectWalker.Checker):
+
+    def __init__(self, vars, config):
+        ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
+
+        self.cmds = []
+        tmp_cmds = self.getVal('command')
+        for tcmd in tmp_cmds:
+            self.cmds.append(interpol(vars, tcmd))
+
+    def eval(self, node):
+        for cmd in self.cmds:
+            self.addResult(self.callCommand(interpol(node.file_attrs, cmd)))
+
+    def callCommand(self, cmd):
+        try:
+            subprocess.check_output(cmd.split(), stderr=subprocess.STDOUT)
+            return None
+        except subprocess.CalledProcessError as e:
+            return e.output
+        except:
+            return 'Unknown error occured on calling [{}]'.format(cmd)
 
 
 class FileExistsChecker(ProjectWalker.Checker):

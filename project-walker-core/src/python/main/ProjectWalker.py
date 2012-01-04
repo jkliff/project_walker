@@ -392,7 +392,8 @@ Life cycle methods:
             self.check_result.append(result)
 
     def addResult(self, result):
-        self.check_result.append((self.current_context, result))
+        if result:
+            self.check_result.append((self.current_context, result))
 
     def getStatus(self):
         return CheckerStatus(self.name, self.check_result, self.checked_count, self.failed_count)
