@@ -145,7 +145,9 @@ def main():
     status = checker.walk(checkers)
 
     if not args.quiet:
-        for (n, s) in groupStatus(status).items():
+        grouped = groupStatus(status)
+        for n in sorted(grouped.iterkeys(), reverse=True):
+            s = grouped[n]
             printStatus(n, s, args.full_report)
 
     if not isSuccessful(status):
