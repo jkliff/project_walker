@@ -5,9 +5,82 @@ import os.path
 import re
 import subprocess
 
+
+try:
+    from lxml import etree
+except ImportError:
+    try:
+        import xml.etree.cElementTree as etree
+    except:
+        import elementtree.ElementTree as etree
+
 import ProjectWalker
 import GlobMatch
 from interpol import interpol
+
+class MavenPomChecker(ProjectWalker.Checker):
+
+    def __init__(self, vars, config):
+        ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
+
+        self.mavenVersion = self.getVal('mavenVersion', 2)[0]
+        self.useParent = self.getVal('useParent', False)[0]
+        self.usePackaging = self.getVal('usePackaging', False)[0]
+        self.versionInDependencies = self.getVal('versionInDependencies', True)[0]
+        self.dependencyVersions = self.getVal('dependencyVersions', [])[0]
+
+        self.addAcceptRule(lambda f: f.file_attrs['file_name'] == 'pom.xml')
+
+    def eval(self, node):
+        ns = {
+                'p': 'http://maven.apache.org/POM/4.0.0'
+             }
+        path = node.file_attrs['full_path']
+        with open(path) as f:
+            doc = etree.parse(f)
+            if self.useParent:
+                parent = doc.getroot().xpath('/p:project/p:parent', namespaces=ns)
+                if parent == []:
+                    self.addResult('No parent pom defined in [{}]!'.format(path))
+            if self.usePackaging:
+                packaging = doc.getroot().xpath('/p:project/p:packaging', namespaces=ns)
+                if packaging == []:
+                    self.addResult('No packaging defined in [{}]!'.format(path))
+            if self.dependencyVersions and not self.dependencyVersions['versionsAllowed']:
+                ex_res = []
+                for d in doc.getroot().xpath('/p:project/p:dependencies/p:dependency', namespaces=ns):
+                    artifact = d.xpath('p:artifactId', namespaces=ns)[0].text
+
+                    if self.__isExcluded(artifact):
+                        continue
+
+                    if d.xpath('p:version', namespaces=ns):
+                        self.addResult('Version used in [{}] for artifact [{}]!'.format(path, artifact))
+
+    def __isExcluded(self, artifact):
+        if 'excludeArtifact' not in self.dependencyVersions:
+            return False
+
+        if 'excludeRegexes' in self.dependencyVersions:
+            res = self.dependencyVersions['excludeRegexes']
+        else:
+            res = []
+            patterns = []
+            ea = self.dependencyVersions['excludeArtifact']
+            if type(ea) == list:
+                patterns = ea
+            else:
+                patterns.append(ea)
+
+            for p in patterns:
+                res.append(re.compile('^{}$'.format(p)))
+            self.dependencyVersions['excludeRegexes'] = res
+
+        for r in res:
+            if r.match(artifact):
+                return True
+
+        return False
 
 
 class ExternalChecker(ProjectWalker.Checker):

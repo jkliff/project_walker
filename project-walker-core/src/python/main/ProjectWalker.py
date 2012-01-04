@@ -346,7 +346,7 @@ Life cycle methods:
             elif ckey.startswith(ck) and found:
                 raise CheckerException('Key [{}] is ambigous!'.format(k))
 
-        if not found and default:
+        if not found and default != None:
             res.append(default)
         elif not found:
             raise CheckerException('Could not find config key [{}]!'.format(key))
