@@ -77,9 +77,10 @@ def createCheckers(rules, vars):
             rc = [rule_config]
         elif type(rule_config) == list:
             rc = rule_config
+        elif rule_config == None:
+            rc = [{}]
         else:
             sys.exit('Invalid config [{}]'.format(rule_name))
-
         for ct in rc:
             c = getattr(Checkers, rule_name)
             checkers.append(c(vars, ct))
