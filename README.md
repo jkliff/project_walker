@@ -107,7 +107,9 @@ project root so these two are equivalent:
     /foo/baz
     %project_path/foo/baz
 
-Files without _/_ are searched as is in the project tree.
+The path expression support globbing as well:
+
+    **/foo/*/ba[zZ]
 
 The checker support a _count_ option. The required files need to be present so
 many times in the project. Default is one. The count must be matched exactly.

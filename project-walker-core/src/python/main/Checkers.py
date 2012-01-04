@@ -5,6 +5,7 @@ import os.path
 import re
 
 import ProjectWalker
+import GlobMatch
 
 # should handle glob expressions in paths
 
@@ -17,22 +18,18 @@ class FileExistsChecker(ProjectWalker.Checker):
         self.fileCount = {}
 
         for f in self.getVal('requiredFiles'):
-            self.fileCount[self.interpolatePathExpression(f)] = 0
+            self.fileCount[GlobMatch.prepare(self.interpolatePathExpression(f))] = 0
 
         self.requiredCount = self.getVal('count', -1)[0]
 
     def eval(self, node):
         result = []
-        for f in self.fileCount.iterkeys():
+        for gb in self.fileCount.iterkeys():
 
             # handle absolute and relative paths differently
 
-            if f[0:1] == '/':
-                attr = 'full_path'
-            else:
-                attr = 'file_name'
-            if f == node.file_attrs[attr]:
-                self.fileCount[f] = self.fileCount[f] + 1
+            if gb.match(node.file_attrs['full_path']):
+                self.fileCount[gb] = self.fileCount[gb] + 1
         return None
 
     def evalOnEnd(self):
