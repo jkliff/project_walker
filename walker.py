@@ -86,6 +86,11 @@ def createCheckers(rules, vars):
 
     return checkers
 
+def listCheckers():
+    for c, t in Checkers.__dict__.iteritems():
+        if c.endswith('Checker') and issubclass(t, ProjectWalker.Checker):
+            print c
+
 
 def groupStatus(status):
     grouped = {}
@@ -117,7 +122,12 @@ def main():
     parser.add_argument('-c', '--config', help='configuration file')
     parser.add_argument('-q', '--quiet', action='store_true', help='do not print anything')
     parser.add_argument('-f', '--full-report', action='store_true', help='prints full report')
+    parser.add_argument('-l', '--list-checkers', action='store_true', help='lists all checkers')
     args = parser.parse_args()
+
+    if (args.list_checkers):
+        listCheckers();
+        sys.exit('')
 
     config = loadConfig(args.project, args.config)
     if not config:
