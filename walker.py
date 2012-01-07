@@ -77,7 +77,13 @@ def isSuccessful(status):
     return all(s.isSuccessful() for s in status)
 
 
-def createCheckers(rules, vars):
+def createCheckers(config):
+    vars = config['vars']
+    rules = config['rules']
+    globalExclude = config['excludeFiles']
+    if type(globalExclude) != list:
+        globalExclude = [globalExclude]
+
     checkers = []
     for (rule_name, rule_config) in rules.iteritems():
         if type(rule_config) == dict:
@@ -88,7 +94,17 @@ def createCheckers(rules, vars):
             rc = [{}]
         else:
             sys.exit('Invalid config [{}]'.format(rule_name))
+
         for ct in rc:
+            if globalExclude:
+                if 'excludeFiles' in ct:
+                    ex = ct['excludeFiles']
+                    if type(ex) != list:
+                        ex = [ex]
+                    ex.extend(globalExclude)
+                    ct['excludeFiles'] = ex
+                else:
+                    ct['excludeFiles'] = globalExclude
             c = getattr(Checkers, rule_name)
             checkers.append(c(vars, ct))
 
@@ -148,7 +164,7 @@ def main():
     config['vars']['project'] = os.path.basename(os.path.abspath(args.project))
 
     checker = ProjectWalker.ProjectCheckEvaluator(load_project(args.project))
-    checkers = createCheckers(config['rules'], config['vars'])
+    checkers = createCheckers(config)
     status = checker.walk(checkers)
 
     if not args.quiet:
