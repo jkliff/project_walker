@@ -80,9 +80,6 @@ def isSuccessful(status):
 def createCheckers(config):
     vars = config['vars']
     rules = config['rules']
-    globalExclude = config['excludeFiles']
-    if type(globalExclude) != list:
-        globalExclude = [globalExclude]
 
     checkers = []
     for (rule_name, rule_config) in rules.iteritems():
@@ -96,19 +93,26 @@ def createCheckers(config):
             sys.exit('Invalid config [{}]'.format(rule_name))
 
         for ct in rc:
-            if globalExclude:
-                if 'excludeFiles' in ct:
-                    ex = ct['excludeFiles']
-                    if type(ex) != list:
-                        ex = [ex]
-                    ex.extend(globalExclude)
-                    ct['excludeFiles'] = ex
-                else:
-                    ct['excludeFiles'] = globalExclude
+            if 'excludeFiles' in config:
+                addGlobalExclude(ct, config['excludeFiles'])
             c = getattr(Checkers, rule_name)
             checkers.append(c(vars, ct))
 
     return checkers
+
+def addGlobalExclude(config, exclude = None):
+    if exclude:
+        if type(exclude) != list:
+            exclude = [exclude]
+        if 'excludeFiles' in config:
+            if type(config['excludeFiles']) == list:
+                ex = config['excludeFiles']
+            else:
+                ex = [config['excludeFiles']]
+            ex.extend(exclude)
+        else:
+            config['excludeFiles'] = exclude
+
 
 def listCheckers():
     for c, t in Checkers.__dict__.iteritems():
