@@ -15,6 +15,7 @@ class DictConfigParser:
         removeChars=None,
         isLongestTokenMatch=False,
         ):
+
         self.obj = obj
         self.options = []
         self.isCaseSensitive = isCaseSensitive
@@ -26,8 +27,9 @@ class DictConfigParser:
         name,
         default=None,
         description=None,
-        isList=True,
+        isList=False,
         ):
+
         self.options.append(DictOption(name, default, description, isList))
 
     def parse(self, config):
@@ -82,6 +84,7 @@ class DictOption:
         description,
         isList,
         ):
+
         self.name = name
         self.default = default
         self.description = description

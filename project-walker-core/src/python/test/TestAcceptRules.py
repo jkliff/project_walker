@@ -1,13 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import ProjectWalker
 
 import unittest
+
 
 class SomeChecker(ProjectWalker.Checker):
 
     def __init__(self, config):
         ProjectWalker.Checker.__init__(self, self.__class__, {}, config)
+        self.addOption('files', isList=True, default=[])
+        self.addOption('excludeFiles', isList=True, default=[])
+        self.parseOptions()
+        self.setUpIncludesExcludes(self.files, self.excludeFiles)
 
 
 class GlobMatchTest(unittest.TestCase):

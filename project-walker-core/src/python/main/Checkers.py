@@ -23,11 +23,11 @@ class MavenPomChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
 
-        self.mavenVersion = self.getVal('mavenVersion', 2)[0]
-        self.useParent = self.getVal('useParent', False)[0]
-        self.usePackaging = self.getVal('usePackaging', False)[0]
-        self.versionInDependencies = self.getVal('versionInDependencies', True)[0]
-        self.dependencyVersions = self.getVal('dependencyVersions', [])[0]
+        self.addOption('mavenVersion', default=2)
+        self.addOption('useParent', default=False)
+        self.addOption('usePackaging', default=False)
+        self.addOption('versionInDependencies', default=True)
+        self.addOption('dependencyVersions', default=[])
 
         self.addAcceptRule(lambda f: f.file_attrs['file_name'] == 'pom.xml')
 
@@ -86,9 +86,14 @@ class ExternalChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
 
+        self.addOption('files', isList=True, default=[])
+        self.addOption('excludeFiles', isList=True, default=[])
+        self.addOption('command', isList=True)
+        self.parseOptions()
+        self.setUpIncludesExcludes(self.files, self.excludeFiles)
+
         self.cmds = []
-        tmp_cmds = self.getVal('command')
-        for tcmd in tmp_cmds:
+        for tcmd in self.command:
             self.cmds.append(interpol(vars, tcmd))
 
     def eval(self, node):
@@ -112,10 +117,12 @@ class FileExistsChecker(ProjectWalker.Checker):
 
         self.fileCount = {}
 
-        for f in self.getVal('requiredFiles'):
-            self.fileCount[GlobMatch.prepare(self.interpolatePathExpression(f))] = 0
+        self.addOption('requiredFiles', isList=True)
+        self.addOption('count', default=-1)
+        self.parseOptions()
 
-        self.requiredCount = self.getVal('count', -1)[0]
+        for f in self.requiredFiles:
+            self.fileCount[GlobMatch.prepare(self.interpolatePathExpression(f))] = 0
 
     def eval(self, node):
         result = []
@@ -129,10 +136,10 @@ class FileExistsChecker(ProjectWalker.Checker):
 
     def evalOnEnd(self):
         for (f, c) in self.fileCount.iteritems():
-            if c < 1 and self.requiredCount == -1:
+            if c < 1 and self.count == -1:
                 self.addResult('Could not find file [{}]'.format(f))
-            elif c != self.requiredCount and self.requiredCount != -1:
-                self.addResult('Found file [{}] {} time(s), required {}.'.format(f, c, self.requiredCount))
+            elif c != self.count and self.count != -1:
+                self.addResult('Found file [{}] {} time(s), required {}.'.format(f, c, self.count))
 
 
 class FileContainsChecker(ProjectWalker.Checker):
@@ -140,10 +147,16 @@ class FileContainsChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
 
-        if 'caseSensitive' not in config or config['caseSensitive'] == 'true':
-            self.caseSensitive = 0
+        self.addOption('files', isList=True, default=[])
+        self.addOption('excludeFiles', isList=True, default=[])
+        self.addOption('caseSensitive', default=True)
+        self.parseOptions()
+        self.setUpIncludesExcludes(self.files, self.excludeFiles)
+
+        if self.caseSensitive:
+            self.reOption = 0
         else:
-            self.caseSensitive = re.IGNORECASE
+            self.reOption = re.IGNORECASE
 
     def eval(self, node):
         current_config = self.interpolateNode(node)
@@ -152,7 +165,7 @@ class FileContainsChecker(ProjectWalker.Checker):
 
         for c in current_config['contains']:
             contains[c] = {}
-            contains[c]['re'] = re.compile(c, self.caseSensitive)
+            contains[c]['re'] = re.compile(c, self.reOption)
             contains[c]['found'] = False
         try:
             f = open(fpath, 'r')
@@ -173,15 +186,20 @@ class FileNameChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
 
-        self.p = self.getVal('matches')[0]
-        self.r = re.compile(self.p)
+        self.addOption('files', isList=True, default=[])
+        self.addOption('excludeFiles', isList=True, default=[])
+        self.addOption('matches')
+        self.parseOptions()
+        self.setUpIncludesExcludes(self.files, self.excludeFiles)
+
+        self.r = re.compile(self.matches)
 
     def eval(self, node):
         result = []
         n = node.file_attrs['file_name']
         p = node.file_attrs['full_path']
         if not self.r.match(n):
-            self.addResult('File [{}] does not match [{}]!'.format(p, self.p))
+            self.addResult('File [{}] does not match [{}]!'.format(p, self.matches))
 
 
 class FilePropertyChecker(ProjectWalker.Checker):
@@ -189,13 +207,17 @@ class FilePropertyChecker(ProjectWalker.Checker):
     def __init__(self, vars, config):
         ProjectWalker.Checker.__init__(self, self.__class__, vars, config)
 
-        self.encoding = self.getVal('encoding', 'utf8')[0]
-        self.ending = self.getVal('lineEnding', 'unix')[0]
-        self.whitespace = self.getVal('whitespace', 'space')[0]
-        self.trailing = self.getVal('trailingWhitespace', True)[0]
-        self.lineLength = self.getVal('lineLength', 120)[0]
+        self.addOption('files', isList=True, default=[])
+        self.addOption('excludeFiles', isList=True, default=[])
+        self.addOption('encoding', default='utf8')
+        self.addOption('lineEnding', default='unix')
+        self.addOption('whitespace', default='space')
+        self.addOption('trailingWhitespace', default=True)
+        self.addOption('lineLength', default=120)
+        self.parseOptions()
+        self.setUpIncludesExcludes(self.files, self.excludeFiles)
 
-        if self.ending == 'unix':
+        if self.lineEnding == 'unix':
             self.er = re.compile('.*[^\r]\n$')
         else:
             self.er = re.compile('.*\r\n$')
@@ -227,7 +249,7 @@ class FilePropertyChecker(ProjectWalker.Checker):
                     if chrp > -1:
                         self.addResult('[{}] found instead of [{}] in file [{}] in line [{}] at char position [{}]!'.format(self.wopp,
                                        self.whitespace, path, i, chrp))
-                    if not self.trailing and ll > 1 and self.trr.match(l):
+                    if not self.trailingWhitespace and ll > 1 and self.trr.match(l):
                         self.addResult('Trailing whitespace found in file [{}] in line [{}]!'.format(path, i))
                     if ll > self.lineLength:
                         self.addResult('Line [{}] in file [{}] is longer than [{}]!'.format(i, path, self.lineLength))

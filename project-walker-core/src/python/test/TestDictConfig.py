@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import DictConfig
 
 import unittest
@@ -18,30 +19,30 @@ class TestDictConfig(unittest.TestCase):
 
     def test_Required(self):
         config = {'name': 'John Doe'}
-        self.parser.addOption('name', isList=False)
+        self.parser.addOption('name')
         self.parser.parse(config)
 
         self.assertEquals('John Doe', self.person.name)
 
     def test_RequiredNotSet(self):
         config = {}
-        self.parser.addOption('name', isList=False)
+        self.parser.addOption('name')
         with self.assertRaises(DictConfig.OptionException):
             self.parser.parse(config)
 
     def test_RequiredWithDefault(self):
         config = {}
 
-        self.parser.addOption('name', default='John Doe', isList=False)
+        self.parser.addOption('name', default='John Doe')
         self.parser.parse(config)
 
         self.assertEquals('John Doe', self.person.name)
 
     def test_Optional(self):
         config = {'name': 'John Doe'}
-        self.parser.addOption('name', isList=False)
-        self.parser.addOption('age', default=25, isList=False)
-        self.parser.addOption('isMale', default=False, isList=False)
+        self.parser.addOption('name')
+        self.parser.addOption('age', default=25)
+        self.parser.addOption('isMale', default=False)
 
         self.parser.parse(config)
 
@@ -53,7 +54,7 @@ class TestDictConfig(unittest.TestCase):
         self.parser.removeChars = '-_'
 
         config = {'n-a__m-e': 'John Doe'}
-        self.parser.addOption('name', isList=False)
+        self.parser.addOption('name')
         self.parser.parse(config)
         self.assertEquals('John Doe', self.person.name)
 
@@ -61,7 +62,7 @@ class TestDictConfig(unittest.TestCase):
         self.parser.isCaseSensitive = False
 
         config = {'NaMe': 'John Doe'}
-        self.parser.addOption('name', isList=False)
+        self.parser.addOption('name')
         self.parser.parse(config)
         self.assertEquals('John Doe', self.person.name)
 
@@ -69,7 +70,7 @@ class TestDictConfig(unittest.TestCase):
         self.parser.isLongestTokenMatch = True
 
         config = {'n': 'John Doe'}
-        self.parser.addOption('name', isList=False)
+        self.parser.addOption('name')
         self.parser.parse(config)
         self.assertEquals('John Doe', self.person.name)
 
@@ -77,8 +78,8 @@ class TestDictConfig(unittest.TestCase):
         emails = ['jd@foo.com', 'john.doe@foo.com']
 
         config = {'name': 'John Doe', 'emails': emails}
-        self.parser.addOption('name', isList=False)
-        self.parser.addOption('emails')
+        self.parser.addOption('name')
+        self.parser.addOption('emails', isList=True)
         self.parser.parse(config)
 
         self.assertEquals('John Doe', self.person.name)
@@ -87,8 +88,8 @@ class TestDictConfig(unittest.TestCase):
 
     def test_List2(self):
         config = {'name': 'John Doe', 'emails': 'jd@foo.com'}
-        self.parser.addOption('name', isList=False)
-        self.parser.addOption('emails')
+        self.parser.addOption('name')
+        self.parser.addOption('emails', isList=True)
         self.parser.parse(config)
 
         self.assertEquals('John Doe', self.person.name)

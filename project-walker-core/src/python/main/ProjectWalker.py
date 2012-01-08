@@ -6,6 +6,7 @@ import logging
 import sys
 
 import GlobMatch
+import DictConfig
 
 from interpol import interpol
 
@@ -294,13 +295,13 @@ Life cycle methods:
         self.vars = vars
         self.config = interpol(vars, config)
         self.current_context = None
-
-        self.__setUpIncludesExcludes()
+        self.optionParser = DictConfig.DictConfigParser(self, isCaseSensitive=False, removeChars='-_',
+                                                        isLongestTokenMatch=True)
 
     def __cleanKey(self, key):
         return key.lower().replace('-', '').replace('_', '')
 
-    def __setUpIncludesExcludes(self):
+    def setUpIncludesExcludes(self, files, excludeFiles):
 
         def getMatcher(match):
 
@@ -310,51 +311,27 @@ Life cycle methods:
 
             return matchFile
 
-        m = self.getVal('files', True)
-        if m != [True]:
-            for match in m:
-                self.addAcceptRule(getMatcher(match))
+        for match in files:
+            self.addAcceptRule(getMatcher(match))
 
-        m = self.getVal('excludeFiles', True)
-        if m != [True]:
-            for match in m:
-                self.addDenyRule(getMatcher(match))
+        for match in excludeFiles:
+            self.addDenyRule(getMatcher(match))
 
-    def getVal(self, key, default=None):
-        """Gets a value from the configuration. It returns everything in a list. If a value is not found and a default
-        is defined, then it is taken. If no default is defined an Exeption is thrown.
+    def addOption(
+        self,
+        name,
+        default=None,
+        description=None,
+        isList=False,
+        ):
 
-        The method does longest token matching, so the key doe not have to be found exactly. If more than one value
-        matches for a key an exception is thrown.
+        self.optionParser.addOption(name, default, description, isList)
 
-        The key are lower cased, - and _ characters are removed."""
-
-        if not self.config and default != None:
-            return [default]
-        elif not self.config:
-            return []
-
-        ckey = self.__cleanKey(key)
-        res = []
-        found = False
-        for (k, v) in self.config.iteritems():
-            ck = self.__cleanKey(k)
-            if ckey.startswith(ck) and not found:
-                found = True
-                val = self.config[k]
-                if type(val) == list:
-                    res = val
-                else:
-                    res.append(val)
-            elif ckey.startswith(ck) and found:
-                raise CheckerException('Key [{}] is ambigous!'.format(k))
-
-        if not found and default != None:
-            res.append(default)
-        elif not found:
-            raise CheckerException('Could not find config key [{}]!'.format(key))
-
-        return res
+    def parseOptions(self, config=None):
+        if config:
+            self.optionParser.parse(config)
+        else:
+            self.optionParser.parse(self.config)
 
     def eval(self, node):
         """Actual rule evaluation. Should return None if successful otherwise a meaningful
@@ -376,6 +353,9 @@ Life cycle methods:
 
     @report_info
     def visit(self, node):
+        cc = self.interpolateNode(node)
+        self.parseOptions(cc)
+
         result = self.eval(node)
         self.checked_count = self.checked_count + 1
         if result:
