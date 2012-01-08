@@ -24,20 +24,19 @@ class DictConfigParser:
     def addOption(
         self,
         name,
-        isRequired=True,
         default=None,
         description=None,
         isList=True,
         ):
-        self.options.append(DictOption(name, isRequired, default, description, isList))
+        self.options.append(DictOption(name, default, description, isList))
 
     def parse(self, config):
         for option in self.options:
             val = self.__getVal(option.name, config)
-            if not val and option.hasDefault():
-                val = option.default
-            elif not val and not option.hasDefault() and option.isRequired:
+            if not val and option.isRequired():
                 raise OptionException('option [{}] isRequired in [{}] but not present'.format(option.name, self.obj))
+            elif not val and not option.isRequired():
+                val = option.default
 
             if option.isList and type(val) != list:
                 val = [val]
@@ -79,19 +78,17 @@ class DictOption:
     def __init__(
         self,
         name,
-        isRequired,
         default,
         description,
         isList,
         ):
         self.name = name
-        self.isRequired = isRequired
         self.default = default
         self.description = description
         self.isList = isList
 
-    def hasDefault(self):
-        return self.default != None
+    def isRequired(self):
+        return self.default == None
 
     def __str__(self):
         return '{}: {} [{}]'.format(name, description, default)

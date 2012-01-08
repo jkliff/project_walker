@@ -40,13 +40,13 @@ class TestDictConfig(unittest.TestCase):
     def test_Optional(self):
         config = {'name': 'John Doe'}
         self.parser.addOption('name', isList=False)
-        self.parser.addOption('age', isRequired=False, isList=False)
-        self.parser.addOption('isMale', isRequired=False, default=False, isList=False)
+        self.parser.addOption('age', default=25, isList=False)
+        self.parser.addOption('isMale', default=False, isList=False)
 
         self.parser.parse(config)
 
         self.assertEquals('John Doe', self.person.name)
-        self.assertIsNone(self.person.age)
+        self.assertEquals(25, self.person.age)
         self.assertFalse(self.person.isMale)
 
     def test_RemoveChars(self):
