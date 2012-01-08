@@ -1,9 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import Checkers
 import ProjectWalker
 
 import unittest
+
+class SomeChecker(ProjectWalker.Checker):
+
+    def __init__(self, config):
+        ProjectWalker.Checker.__init__(self, self.__class__, {}, config)
 
 
 class GlobMatchTest(unittest.TestCase):
@@ -15,14 +19,14 @@ class GlobMatchTest(unittest.TestCase):
 
     def test_Accept1(self):
         config = {'files': '*.py'}
-        checker = Checkers.FileContainsChecker({}, config)
+        checker = SomeChecker(config)
         self.assertTrue(checker.appliesTo(self.getNode('/foo/bar/quux.py')))
         self.assertTrue(checker.appliesTo(self.getNode('/foo/bar/quux/bal.py')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.txt')))
 
     def test_Accept2(self):
         config = {'files': ['*.py', '*.md', '*.txt']}
-        checker = Checkers.FileContainsChecker({}, config)
+        checker = SomeChecker(config)
         self.assertTrue(checker.appliesTo(self.getNode('/foo/bar/quux.py')))
         self.assertTrue(checker.appliesTo(self.getNode('/foo/bar/quux.md')))
         self.assertTrue(checker.appliesTo(self.getNode('/foo/bar/quux.txt')))
@@ -30,14 +34,14 @@ class GlobMatchTest(unittest.TestCase):
 
     def test_Deny1(self):
         config = {'excludeFiles': ['*.py', '*.md', '*.txt']}
-        checker = Checkers.FileContainsChecker({}, config)
+        checker = SomeChecker(config)
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.py')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.md')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.txt')))
 
     def test_Deny2(self):
         config = {'excludeFiles': ['*.py', '*.md', '*.txt']}
-        checker = Checkers.FileContainsChecker({}, config)
+        checker = SomeChecker(config)
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.py')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.md')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bar/quux.txt')))
@@ -47,7 +51,7 @@ class GlobMatchTest(unittest.TestCase):
         '''Files which are accepted, but not denied.'''
 
         config = {'files': ['*.py', '*.md', '*.txt'], 'excludeFiles': ['baz', 'bal']}
-        checker = Checkers.FileContainsChecker({}, config)
+        checker = SomeChecker(config)
         self.assertTrue(checker.appliesTo(self.getNode('/foo/bar/quux.py')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/baz/quux.py')))
         self.assertFalse(checker.appliesTo(self.getNode('/foo/bal/quux.py')))
