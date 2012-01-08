@@ -5,7 +5,6 @@ import os.path
 import re
 import subprocess
 
-
 try:
     from lxml import etree
 except ImportError:
@@ -17,6 +16,7 @@ except ImportError:
 import ProjectWalker
 import GlobMatch
 from interpol import interpol
+
 
 class MavenPomChecker(ProjectWalker.Checker):
 
@@ -32,9 +32,7 @@ class MavenPomChecker(ProjectWalker.Checker):
         self.addAcceptRule(lambda f: f.file_attrs['file_name'] == 'pom.xml')
 
     def eval(self, node):
-        ns = {
-                'p': 'http://maven.apache.org/POM/4.0.0'
-             }
+        ns = {'p': 'http://maven.apache.org/POM/4.0.0'}
         path = node.file_attrs['full_path']
         with open(path) as f:
             doc = etree.parse(f)
@@ -101,7 +99,7 @@ class ExternalChecker(ProjectWalker.Checker):
         try:
             subprocess.check_output(cmd.split(), stderr=subprocess.STDOUT)
             return None
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError, e:
             return e.output
         except:
             return 'Unknown error occured on calling [{}]'.format(cmd)
@@ -152,7 +150,7 @@ class FileContainsChecker(ProjectWalker.Checker):
         fpath = node.file_attrs['full_path']
         contains = {}
 
-        for c in self.getVal('contains'):
+        for c in current_config['contains']:
             contains[c] = {}
             contains[c]['re'] = re.compile(c, self.caseSensitive)
             contains[c]['found'] = False

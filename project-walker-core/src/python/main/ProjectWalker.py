@@ -46,18 +46,19 @@ class Visitor:
 
     @report_debug
     def appliesTo(self, n):
-        for predicate in self.accept_rules:
-            if not predicate(n):
+        """If there are no accept rules defined the method returns True. However
+        if there are such rules one of the has to match to accept the file. If there
+        are deny rules, then matching any of them will reject the file, even if an
+        accept rule has matched."""
 
-                # print 'd ', n.file_attrs['full_path']
+        if self.accept_rules:
+            accepted = any([predicate(n) for predicate in self.accept_rules])
+        else:
+            accepted = True
 
-                return False
+        denied = any([predicate(n) for predicate in self.deny_rules])
 
-        for predicate in self.deny_rules:
-            if predicate(n):
-                return False
-
-        return True
+        return accepted and not denied
 
     @report_debug
     def pre_walk(self):
@@ -303,11 +304,11 @@ Life cycle methods:
 
         def getMatcher(match):
 
-            def mf(f):
+            def matchFile(f):
                 gb = GlobMatch.prepare(match)
                 return gb.match(f.file_attrs['full_path'])
 
-            return mf
+            return matchFile
 
         m = self.getVal('files', True)
         if m != [True]:

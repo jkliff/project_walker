@@ -55,6 +55,10 @@ class GlobMatchTest(unittest.TestCase):
         gb = GlobMatch.prepare('/*/???.py')
         self.assertTrue(gb.match('//foo.py'))
 
+    def test_OneStar3(self):
+        gb = GlobMatch.prepare('*.py')
+        self.assertTrue(gb.match('/quux/bar/foo.py'))
+
     def test_TwoStars1(self):
         gb = GlobMatch.prepare('**/foo.py')
         self.assertTrue(gb.match('quux/bar/foo.py'))
@@ -85,6 +89,14 @@ class GlobMatchTest(unittest.TestCase):
         gb = GlobMatch.prepare('**/*.(py|txt)')
         self.assertTrue(gb.match('quux/bar/foo.py'))
         self.assertTrue(gb.match('quux/bar/foo.txt'))
+
+    def test_TwoGlobs1(self):
+        gb1 = GlobMatch.prepare('**/foo/**')
+        gb2 = GlobMatch.prepare('**/*/*/bar.py')
+        path = '/quux/foo/bar.py'
+        self.assertTrue(gb1.match(path))
+        self.assertTrue(gb2.match(path))
+
 
 if __name__ == '__main__':
     unittest.main()
