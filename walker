@@ -4,6 +4,8 @@ if [[ $1 = 'test' ]]; then
     PYTHONPATH=$DIR/project-walker-core/src/python/main nosetests-2.7 -w $DIR/project-walker-core/src/python/test
 elif [[ $1 = 'prof' ]]; then
     PYTHONPATH=$DIR/project-walker-core/src/python/main python2.7 -m cProfile $DIR/walker.py $@
+elif [[ $1 = 'lint' ]]; then
+    PYTHONPATH=$DIR/project-walker-core/src/python/main find $DIR -name '*.py' -exec pylint '{}' \;
 else
     PYTHONPATH=$DIR/project-walker-core/src/python/main python2.7 $DIR/walker.py $@
 fi

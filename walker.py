@@ -8,26 +8,24 @@ import sys
 import ProjectWalker
 import Checkers
 
-import argparse
-
-from yaml import load, dump
+from yaml import load
 from string import ljust, rjust
 
 CHECKER_STATUS_PADDING = 40
 COUNTS_PADDING = 8
 DEFAULT_CONFIG_NAME = 'walker.conf'
 
-isTerminal = sys.stdout.isatty()
+IS_TERMINAL = sys.stdout.isatty()
 
 def red(string):
-    if isTerminal:
+    if IS_TERMINAL:
         return '\033[91m' + string + '\033[0m'
     else:
         return string
 
 
 def green(string):
-    if isTerminal:
+    if IS_TERMINAL:
         return '\033[92m' + string + '\033[0m'
     else:
         return string
@@ -38,7 +36,7 @@ def load_project(project):
     return tree_builder.build(os.path.abspath(project))
 
 
-def printStatus(name, status, fullStatus=None):
+def print_status(name, status, full_status=None):
     failed_check_count = 0
     check_count = 0
     short_status = ''
@@ -50,7 +48,7 @@ def printStatus(name, status, fullStatus=None):
             failed_check_count = failed_check_count + 1
         check_count = check_count + 1
 
-        if fullStatus:
+        if full_status:
             for (c, m) in s.check_result:
                 messages.append('  * ' + m)
             long_status = '\n'.join(messages)
@@ -69,15 +67,15 @@ def printStatus(name, status, fullStatus=None):
                                        ok_or_fail)
 
     print short_status
-    if fullStatus:
+    if full_status:
         print long_status
 
 
-def isSuccessful(status):
+def is_successful(status):
     return all(s.isSuccessful() for s in status)
 
 
-def createCheckers(config):
+def create_checkers(config):
     vars = config['vars']
     rules = config['rules']
 
@@ -94,13 +92,13 @@ def createCheckers(config):
 
         for ct in rc:
             if 'excludeFiles' in config:
-                addGlobalExclude(ct, config['excludeFiles'])
+                add_global_exclude(ct, config['excludeFiles'])
             c = getattr(Checkers, rule_name)
             checkers.append(c(vars, ct))
 
     return checkers
 
-def addGlobalExclude(config, exclude = None):
+def add_global_exclude(config, exclude = None):
     if exclude:
         if type(exclude) != list:
             exclude = [exclude]
@@ -114,13 +112,13 @@ def addGlobalExclude(config, exclude = None):
             config['excludeFiles'] = exclude
 
 
-def listCheckers():
+def list_checkers():
     for c, t in Checkers.__dict__.iteritems():
         if c.endswith('Checker') and issubclass(t, ProjectWalker.Checker):
             print c
 
 
-def groupStatus(status):
+def group_status(status):
     grouped = {}
     for s in status:
         name = s.checker_name
@@ -154,7 +152,7 @@ def main():
     args = parser.parse_args()
 
     if (args.list_checkers):
-        listCheckers();
+        list_checkers();
         sys.exit('')
 
     config = loadConfig(args.project, args.config)
@@ -168,16 +166,16 @@ def main():
     config['vars']['project'] = os.path.basename(os.path.abspath(args.project))
 
     checker = ProjectWalker.ProjectCheckEvaluator(load_project(args.project))
-    checkers = createCheckers(config)
+    checkers = create_checkers(config)
     status = checker.walk(checkers)
 
     if not args.quiet:
-        grouped = groupStatus(status)
+        grouped = group_status(status)
         for n in sorted(grouped.iterkeys(), reverse=True):
             s = grouped[n]
-            printStatus(n, s, args.full_report)
+            print_status(n, s, args.full_report)
 
-    if not isSuccessful(status):
+    if not is_successful(status):
         sys.exit('')
 
 
