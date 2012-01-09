@@ -8,7 +8,7 @@ import sys
 import GlobMatch
 import DictConfig
 
-from interpol import interpol
+from interpol import interpol, has_variable
 
 _t = lambda m: logging.debug(m)
 _d = lambda m: logging.debug(m)
@@ -297,6 +297,7 @@ Life cycle methods:
         self.current_context = None
         self.optionParser = DictConfig.DictConfigParser(self, isCaseSensitive=False, removeChars='-_',
                                                         isLongestTokenMatch=True)
+        self.hasVariable = has_variable(config)
 
     def __cleanKey(self, key):
         return key.lower().replace('-', '').replace('_', '')
@@ -353,8 +354,11 @@ Life cycle methods:
 
     @report_info
     def visit(self, node):
-        cc = self.interpolateNode(node)
-        self.parseOptions(cc)
+        if self.hasVariable:
+            cc = self.interpolateNode(node)
+            self.parseOptions(cc)
+        else:
+            self.parseOptions()
 
         result = self.eval(node)
         self.checked_count = self.checked_count + 1

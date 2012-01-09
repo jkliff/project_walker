@@ -109,4 +109,30 @@ def interpol(var, v):
     else:
         return v
 
+def _has_variable_str(v):
+    if v:
+        return v.find('%') > -1
+    else:
+        return False
 
+def _has_variable_lst_set(val):
+    return any(has_variable(v) for v in val)
+
+def _has_variable_dct(val):
+    return _has_variable_lst_set(val.values())
+
+def has_variable(v):
+    if not v:
+        return False
+
+    m = {
+        dict: _has_variable_dct,
+        list: _has_variable_lst_set,
+        set: _has_variable_lst_set,
+        str: _has_variable_str
+        }
+
+    if type(v) in m:
+        return m[type(v)](v)
+    else:
+        return False

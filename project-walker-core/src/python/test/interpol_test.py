@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from interpol import interpol
+from interpol import interpol, has_variable
 import unittest
 
 
@@ -75,6 +75,20 @@ class InterpolTest(unittest.TestCase):
     def test_regexMatchReturn2(self):
         self.assertEqual('barbar', interpol(self.v, '%{some#[^-]+-([^-]+)$}bar'))
 
+    def test_has_variable1(self):
+        self.assertTrue(has_variable('foo %bar'))
+
+    def test_has_variable2(self):
+        self.assertTrue(has_variable(['foo', ' %bar']))
+
+    def test_has_variable3(self):
+        self.assertTrue(has_variable(['foo', {'quux': '%bar'}]))
+
+    def test_has_variable4(self):
+        self.assertTrue(has_variable(set(['foo', ' %bar'])))
+
+    def test_has_variable2(self):
+        self.assertTrue(has_variable(['foo', {'quux': ['bal', '%bar']}]))
 
 if __name__ == '__main__':
     unittest.main()
